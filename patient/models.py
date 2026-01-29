@@ -275,17 +275,17 @@ class TherapyCycle(models.Model):
   end_date = models.DateField(verbose_name='Data zakończenia', null=True, blank=True)
 
 
-  class Therapy(models.TextChoices):
-    CHEMO = 'Chemoterapia', 'Chemioterapia'
-    HORMON = 'Terapia hormonalna', 'Terapia hormonalna'
-    IMMUNO = 'Immunoterapia', 'Immunoterapia'
-    PHOTO = 'Terapia fotodynamiczna', 'Terapia fotodynamiczna'
-    TARGET = 'Terapia celowana', 'Terapia celowana'
-    RADIO = 'Radioterapia', 'Radioterapia'
+  # class Therapy(models.TextChoices):
+  #   CHEMO = 'Chemoterapia', 'Chemioterapia'
+  #   HORMON = 'Terapia hormonalna', 'Terapia hormonalna'
+  #   IMMUNO = 'Immunoterapia', 'Immunoterapia'
+  #   PHOTO = 'Terapia fotodynamiczna', 'Terapia fotodynamiczna'
+  #   TARGET = 'Terapia celowana', 'Terapia celowana'
+  #   RADIO = 'Radioterapia', 'Radioterapia'
 
   protocol_name = models.CharField(
     max_length=200,
-    choices=Therapy.choices,
+    # choices=Therapy.choices,
     verbose_name='Rodzaj terapii'
   )
   class Status(models.TextChoices):
@@ -420,13 +420,15 @@ class Mutation(models.Model):
   chromosome_location = models.CharField(
       max_length=100,
       help_text="Format: chr:start-end (e.g., chr17:41196312-41277500)",
-      verbose_name="Lokalizacja w genomie"
-  ),
+      verbose_name="Lokalizacja w genomie",
+      null=True,
+  )
 
   mutation_type = models.CharField(
         max_length=20,
         choices=MutationTypeChoices.choices,
-        default=MutationTypeChoices.OTHER,)
+        default=MutationTypeChoices.OTHER
+  )
 
   vaf = models.FloatField(
     verbose_name="VAF"
