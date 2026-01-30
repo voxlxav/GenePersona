@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from .forms import PatientForm
-from patient.models import Patient, Doctor, Appointment
+from .forms import PatientForm, TherapyCycleForm
+from patient.models import Patient, Doctor, Appointment, TherapyCycle
 
 
 @login_required(login_url='login')
@@ -105,3 +105,21 @@ def delete_patient(request, pk):
         return redirect("home")
 
     return redirect("patient_detail", pk=pk)
+
+#edycja dokumentacji medycznej:
+@login_required(login_url='login')
+def edit_therapy_cycle(request, pk):
+    cycle = get_object_or_404(TherapyCycle, pk=pk)
+
+    if request.method == "POST":
+        form = TherapyCycleForm(request.POST, instance=cycle)
+        if form.is_valid():
+            form.save()
+            return redirect("patient_detail", pk=cycle.patient.pk)
+    else:
+        form = TherapyCycleForm(instance=cycle)
+
+    return render(request, "home_page/edit_cycle_inline.html", {
+        "form": form,
+        "cycle": cycle
+    })

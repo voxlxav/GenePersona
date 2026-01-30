@@ -12,3 +12,14 @@ class PatientForm(forms.ModelForm):
         widgets = {
           'date_of_birth': forms.DateInput(attrs={'type':'date','class':'form-control'}),
         }
+
+from patient.models import TherapyCycle
+
+class TherapyCycleForm(forms.ModelForm):
+    class Meta:
+        model = TherapyCycle
+        fields = ["protocol_name", "diagnosis", "start_date", "end_date", "status"]
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "end_date": forms.DateInput(attrs={"type": "date"}),
+        }

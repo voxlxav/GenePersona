@@ -36,7 +36,7 @@
         {% if editing %}
 
         <!-- TRYB EDYCJI -->
-        <h2>Edytuj dane pacjenta</h2>
+        <h2>Edytuj dane kontaktowe pacjenta</h2>
 
         <form method="post">
             {% csrf_token %}
@@ -212,6 +212,11 @@
                         <td>{{ t.start_date }}</td>
                         <td>{{ t.end_date|default:"—" }}</td>
                         <td>{{ t.status }}</td>
+                    </tr>
+                    <tr> 
+                        <td colspan="5" style="text-align: right;"> 
+                            <a href="{% url 'edit_therapy_cycle' t.pk %}" class="btn btn-secondary">Edytuj</a> 
+                        </td> 
                     </tr>
                     {% endfor %}
                 </tbody>
