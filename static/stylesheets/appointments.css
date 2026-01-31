@@ -85,3 +85,54 @@ html, body {
     color: #ffffff;
     background: var(--accent-color);
 }
+
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    position: relative;
+    overflow-y: auto; /* Przewijanie tylko głównej treści */
+}
+
+/* HEADER */
+.dashboard-header {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 40px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+.user-greeting {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.user-greeting span {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.logout-button {
+    background: #ffffff;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-button:hover {
+    background: #ef4444;
+    color: white;
+}

@@ -1,10 +1,11 @@
+from django.contrib.admindocs.utils import docutils_is_available
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from .forms import PatientForm, TherapyCycleForm
+from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm
 from patient.models import Patient, Doctor, Appointment, TherapyCycle
 
 
@@ -123,3 +124,20 @@ def edit_therapy_cycle(request, pk):
         "form": form,
         "cycle": cycle
     })
+
+@login_required(login_url='login')
+def add_document(request):
+    patient = get_object_or_404(Patient, pk=pk)
+
+    if request.method == "POST":
+        form = MedicalDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.patient = patient
+            document.save()
+            messages.success(request, "Dodano dokument do karty pacjenta")
+            return redirect("patient_detail", pk=patient.pk)
+    else:
+        form = MedicalDocumentForm()
+
+    return render(request, "home_page/patient_detail.html", {'form':form, 'patient':patient})

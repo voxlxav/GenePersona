@@ -1,5 +1,6 @@
 from django import forms
-from patient.models import Patient
+from patient.models import Patient, MedicalDocument
+
 
 class PatientForm(forms.ModelForm):
   class Meta:
@@ -23,3 +24,8 @@ class TherapyCycleForm(forms.ModelForm):
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
         }
+
+class MedicalDocumentForm(forms.ModelForm):
+    class Meta:
+        model = MedicalDocument
+        fields = ["name","file","description"]

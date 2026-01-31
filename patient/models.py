@@ -15,6 +15,9 @@ def validate_pesel(value):
   if int(value[-1]) != control_value:
     raise ValidationError('Nieprawidłowa suma kontrolna numeru PESEL.')
 
+def patient_directory_path(instance, filename):
+  return  f"medical_docs/patient{instance.patient.id}/{filename}"
+
 class Doctor(models.Model):
   class Specialization(models.TextChoices):
     ONCOLOGIST = 'ONKOLOG','Onkolog kliniczny'
@@ -81,7 +84,7 @@ class Patient(models.Model):
     default=Gender.MALE,
     verbose_name='Płeć'
   )
-  #Adres zamieszkania
+  #Adres
   address_street = models.CharField(max_length=200, verbose_name='Ulica i nr domu', blank=True, null=True)
   address_zip_code = models.CharField(
     max_length=6,
@@ -194,7 +197,7 @@ class MedicalDocument(models.Model):
     verbose_name='Pacjent'
   )
   name = models.CharField(max_length=250, verbose_name='Nazwa dokumentu (np. Wynik TK)')
-  file = models.FileField(upload_to='medical_documents/', blank=True, null=True)
+  file = models.FileField(upload_to=patient_directory_path, blank=True, null=True)
   upload_date = models.DateField(verbose_name='Data dodania dokumentu', blank=True, null=True)
   description = models.TextField(verbose_name= 'Komentarz',blank=True, null=True)
 
