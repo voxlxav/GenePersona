@@ -254,6 +254,36 @@
 document.getElementById("modalOverlay").addEventListener("click", function () {
     window.location.href = "{% url 'home' %}";
 });
+document.addEventListener("DOMContentLoaded", function() {
+        // Te ID zdefiniowaliśmy w forms.py
+        const icdSelect = document.getElementById("id_icd_code_select");
+        const nameInput = document.getElementById("id_diagnosis_name");
+
+        if (icdSelect && nameInput) {
+            icdSelect.addEventListener("change", function() {
+                // Pobierz tekst wybranej opcji (np. "C34 - Nowotwór złośliwy płuca")
+                const selectedText = icdSelect.options[icdSelect.selectedIndex].text;
+                
+                // Jeśli wybrano pustą opcję
+                if (icdSelect.value === "") {
+                    nameInput.value = "";
+                    return;
+                }
+
+                // Logika usuwania kodu z początku stringa (np. "C34 - ")
+                let description = selectedText;
+                if (selectedText.includes("-")) {
+                    // Dzielimy po myślniku i bierzemy drugą część
+                    const parts = selectedText.split("-");
+                    // Łączymy z powrotem od indeksu 1, na wypadek gdyby w nazwie były inne myślniki
+                    description = parts.slice(1).join("-").trim();
+                }
+                
+                // Wpisz do pola tekstowego
+                nameInput.value = description;
+            });
+        }
+    });
 </script>
 
 </body>
