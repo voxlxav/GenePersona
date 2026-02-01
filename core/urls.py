@@ -29,8 +29,6 @@ urlpatterns = [
     # Appointments
     path('appointments/', views.appointments, name='appointments'),
 
-#edycja dokumentacji medycznej:
-    path('therapy-cycle/<int:pk>/edit/', views.edit_therapy_cycle, name='edit_therapy_cycle'),
 
     #Manage medical documents
     path('patient/<int:pk>/add_document/', views.add_document, name='add_document'),

@@ -1,18 +1,33 @@
-from django.contrib.admindocs.utils import docutils_is_available
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm
-from patient.models import Patient, Doctor, Appointment, TherapyCycle
+# Import formularzy
+from .forms import (
+    PatientForm, 
+    TherapyCycleForm, 
+    MedicalDocumentForm,
+    DiagnosisForm,
+    AppointmentForm,
+    MutationForm
+)
 
+# Import modeli
+from patient.models import (
+    Patient, 
+    Doctor, 
+    TherapyCycle, 
+    Diagnosis,       
+    MedicalDocument,
+    Appointment,
+    Mutation
+)
 
 @login_required(login_url='login')
 def home(request):
     user = request.user
-
     if user.is_superuser:
         patients = Patient.objects.all().order_by('-id')
     else:
@@ -25,7 +40,6 @@ def home(request):
         except Doctor.DoesNotExist:
             patients = Patient.objects.none()
 
-    # Wyszukiwanie
     search_query = request.GET.get('q')
     if search_query:
         patients = patients.filter(
@@ -38,14 +52,11 @@ def home(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context = {
+    return render(request, 'home_page/home.html', {
         'user': user,
         'patients': page_obj,
         'search_query': search_query or ""
-    }
-
-    return render(request, 'home_page/home.html', context)
-
+    })
 
 @login_required(login_url='login')
 def add_patient(request):
@@ -63,81 +74,193 @@ def add_patient(request):
                 for error in errors:
                     messages.error(request, f"Błąd w polu {field}: {error}")
             return redirect('home')
-
     return redirect('home')
-
 
 @login_required(login_url='login')
 def appointments(request):
     user = request.user
-    context = {
-        'user': user
-    }
-    return render(request, "appointments/appointments.html", context)
+    return render(request, "appointments/appointments.html", {'user': user})
 
-
+# --- GŁÓWNY WIDOK PACJENTA ---
 @login_required(login_url='login')
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
+    editing_patient = request.GET.get("edit") == "1"
+    
+    # Zmienne dla SUB-MODALA (popup)
+    sub_modal_form = None
+    sub_modal_title = ""
+    action_type = "" 
+    object_id = ""
 
-    editing = request.GET.get("edit") == "1"
-
+    # --- POST (ZAPISYWANIE DANYCH) ---
     if request.method == "POST":
-        form = PatientForm(request.POST, instance=patient)
-        if form.is_valid():
-            form.save()
-            return redirect("patient_detail", pk=pk)
-    else:
-        form = PatientForm(instance=patient)
+        post_action = request.POST.get("action_type")
+        obj_id = request.POST.get("object_id") # ID edytowanego obiektu (jeśli jest)
+
+        # 1. Główne dane pacjenta
+        if not post_action: 
+            form = PatientForm(request.POST, instance=patient)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Zaktualizowano dane pacjenta.")
+                return redirect("patient_detail", pk=pk)
+        
+        # ---------------------------------------------------------
+        # 2. SEKCJA ZAPISU - ROZPISANA NA SZTYWNO (BEZ AUTOMATYKI)
+        # ---------------------------------------------------------
+
+        # --- A. WIZYTY (Appointment) ---
+        elif post_action == "appointment":
+            instance = get_object_or_404(Appointment, pk=obj_id) if obj_id else None
+            form = AppointmentForm(request.POST, instance=instance)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.patient = patient  # <--- TUTAJ PRZYPISUJEMY PACJENTA
+                obj.save()
+                messages.success(request, "Zapisano wizytę.")
+                return redirect("patient_detail", pk=pk)
+            else:
+                sub_modal_form = form
+                sub_modal_title = "Błąd w formularzu wizyty"
+                action_type = "appointment"
+
+        # --- B. DIAGNOZY (Diagnosis) ---
+        elif post_action == "diagnosis":
+            instance = get_object_or_404(Diagnosis, pk=obj_id) if obj_id else None
+            form = DiagnosisForm(request.POST, instance=instance)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.patient = patient  # <--- TUTAJ PRZYPISUJEMY PACJENTA
+                obj.save()
+                messages.success(request, "Zapisano diagnozę.")
+                return redirect("patient_detail", pk=pk)
+            else:
+                sub_modal_form = form
+                sub_modal_title = "Błąd w formularzu diagnozy"
+                action_type = "diagnosis"
+
+        # --- C. TERAPIE (TherapyCycle) ---
+        elif post_action == "therapy_cycle":
+            instance = get_object_or_404(TherapyCycle, pk=obj_id) if obj_id else None
+            form = TherapyCycleForm(request.POST, instance=instance)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.patient = patient  # <--- TUTAJ PRZYPISUJEMY PACJENTA
+                obj.save()
+                messages.success(request, "Zapisano terapię.")
+                return redirect("patient_detail", pk=pk)
+            else:
+                sub_modal_form = form
+                sub_modal_title = "Błąd w formularzu terapii"
+                action_type = "therapy_cycle"
+
+        # --- D. MUTACJE (Mutation) ---
+        elif post_action == "mutation":
+            instance = get_object_or_404(Mutation, pk=obj_id) if obj_id else None
+            form = MutationForm(request.POST, instance=instance)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.patient = patient  # <--- TUTAJ PRZYPISUJEMY PACJENTA
+                obj.save()
+                messages.success(request, "Zapisano mutację.")
+                return redirect("patient_detail", pk=pk)
+            else:
+                sub_modal_form = form
+                sub_modal_title = "Błąd w formularzu mutacji"
+                action_type = "mutation"
+
+    # --- GET (OTWIERANIE OKIENEK) ---
+    if not sub_modal_form: # Jeśli nie ma błędów z POST, sprawdzamy URL
+        action = request.GET.get("action")
+        target_id = request.GET.get("id")
+
+        # TERAPIA
+        if action == "add_therapy":
+            sub_modal_form = TherapyCycleForm()
+            sub_modal_title = "Dodaj cykl terapii"
+            action_type = "therapy_cycle"
+        elif action == "edit_therapy" and target_id:
+            obj = get_object_or_404(TherapyCycle, pk=target_id)
+            sub_modal_form = TherapyCycleForm(instance=obj)
+            sub_modal_title = "Edytuj cykl terapii"
+            action_type = "therapy_cycle"
+            object_id = obj.id
+
+        # DIAGNOZA
+        elif action == "add_diagnosis":
+            sub_modal_form = DiagnosisForm()
+            sub_modal_title = "Dodaj diagnozę"
+            action_type = "diagnosis"
+        elif action == "edit_diagnosis" and target_id:
+            obj = get_object_or_404(Diagnosis, pk=target_id)
+            sub_modal_form = DiagnosisForm(instance=obj)
+            sub_modal_title = "Edytuj diagnozę"
+            action_type = "diagnosis"
+            object_id = obj.id
+
+        # WIZYTA
+        elif action == "add_appointment":
+            sub_modal_form = AppointmentForm()
+            sub_modal_title = "Dodaj wizytę"
+            action_type = "appointment"
+        elif action == "edit_appointment" and target_id:
+            obj = get_object_or_404(Appointment, pk=target_id)
+            sub_modal_form = AppointmentForm(instance=obj)
+            sub_modal_title = "Edytuj wizytę"
+            action_type = "appointment"
+            object_id = obj.id
+
+        # MUTACJA
+        elif action == "add_mutation":
+            sub_modal_form = MutationForm()
+            sub_modal_title = "Dodaj mutację"
+            action_type = "mutation"
+        elif action == "edit_mutation" and target_id:
+            obj = get_object_or_404(Mutation, pk=target_id)
+            sub_modal_form = MutationForm(instance=obj)
+            sub_modal_title = "Edytuj mutację"
+            action_type = "mutation"
+            object_id = obj.id
+
+    main_patient_form = PatientForm(instance=patient)
 
     return render(request, "home_page/patient_detail.html", {
         "patient": patient,
-        "form": form,
-        "editing": editing,
+        "form": main_patient_form,
+        "editing": editing_patient,
+        "sub_modal_form": sub_modal_form,
+        "sub_modal_title": sub_modal_title,
+        "action_type": action_type,
+        "object_id": object_id,
     })
-
 
 @login_required(login_url='login')
 def delete_patient(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
-
     if request.method == "POST":
         patient.delete()
+        messages.success(request, "Pacjent usunięty.")
         return redirect("home")
-
     return redirect("patient_detail", pk=pk)
 
-#edycja dokumentacji medycznej:
 @login_required(login_url='login')
-def edit_therapy_cycle(request, pk):
-    cycle = get_object_or_404(TherapyCycle, pk=pk)
-
-    if request.method == "POST":
-        form = TherapyCycleForm(request.POST, instance=cycle)
-        if form.is_valid():
-            form.save()
-            return redirect("patient_detail", pk=cycle.patient.pk)
-    else:
-        form = TherapyCycleForm(instance=cycle)
-
-    return render(request, "home_page/edit_cycle_inline.html", {
-        "form": form,
-        "cycle": cycle
-    })
-
-@login_required(login_url='login')
-def add_document(request):
+def add_document(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
-
     if request.method == "POST":
         form = MedicalDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             document = form.save(commit=False)
             document.patient = patient
             document.save()
-            messages.success(request, "Dodano dokument do karty pacjenta")
+            messages.success(request, "Dodano dokument.")
             return redirect("patient_detail", pk=patient.pk)
     else:
         form = MedicalDocumentForm()
 
-    return render(request, "home_page/patient_detail.html", {'form':form, 'patient':patient})
+    return render(request, "home_page/patient_detail.html", {
+        'patient': patient,
+        'sub_modal_form': form,
+        'sub_modal_title': "Dodaj dokumentację medyczną",
+        'document_upload_mode': True
+    })
