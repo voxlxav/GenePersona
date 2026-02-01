@@ -25,7 +25,7 @@
 
     <form method="post" action="{% url 'delete_patient' patient.id %}" onsubmit="return confirm('Czy na pewno chcesz usunąć pacjenta?');">
         {% csrf_token %}
-        <button type="submit" class="btn-danger">Usuń pacjenta</button>
+        <button type="submit" class="btn-danger">Usuń pacjenta (Archiwizuj)</button>
     </form>
 </div>
 

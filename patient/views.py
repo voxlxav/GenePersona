@@ -14,14 +14,14 @@ def home(request):
     user = request.user
 
     if user.is_superuser:
-        patients = Patient.objects.all().order_by('-id')
+        patients = Patient.objects.filter(is_active=True).order_by('-id')
     else:
         try:
             doctor_profile = user.doctor_profile
             patients = Patient.objects.filter(
                 Q(attending_doctor=doctor_profile) |
                 Q(consulting_doctors=doctor_profile)
-            ).distinct().order_by('-id')
+            ).filter(is_active=True).distinct().order_by('-id')
         except Doctor.DoesNotExist:
             patients = Patient.objects.none()
 
@@ -73,7 +73,7 @@ def appointments(request):
     context = {
         'user': user
     }
-    return render(request, "appointments/appointments.html", context)
+    return render(request, "appointments/appointments.html", context=context)
 
 
 @login_required(login_url='login')
@@ -102,7 +102,7 @@ def delete_patient(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
 
     if request.method == "POST":
-        patient.delete()
+        patient.is_active = False
         return redirect("home")
 
     return redirect("patient_detail", pk=pk)

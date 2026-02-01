@@ -49,6 +49,21 @@
             </form>
             {% endif %}
         </header>
+        {% if user.is_superuser %}
+
+            <div class="admin-view animate-fade-in">
+                <div class="admin-hero">
+                    <h2>Panel administratora</h2>
+                    <p>Możesz przejść do panelu administracyjnego Django.</p>
+                    <a href="/admin/">
+                        <button class="mega-button">Przejdź do panelu administratora</button>
+                    </a>
+                </div>
+            </div>
+
+            {% else %}
+            {% endif %}
     </div>
+
 </body>
 </html>

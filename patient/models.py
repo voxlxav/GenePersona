@@ -118,6 +118,11 @@ class Patient(models.Model):
   # Dane Medyczne (POLA ARCHIWALNE)
   initial_diagnosis= models.CharField(max_length=250,verbose_name='Wstępna diagnoza (ARCHIWALNE)',blank=True, null=True)
   diagnosis_date = models.DateField(verbose_name='Data diagnozy (ARCHIWALNE)', blank = True, null= True)
+  #Soft delete field
+  is_active = models.BooleanField(
+    default= True,
+    verbose_name = "Czy aktywny (Nieusunięty)"
+  )
 
   def __str__(self):
     identifier = self.pesel if self.pesel else self.date_of_birth
@@ -200,6 +205,10 @@ class MedicalDocument(models.Model):
   file = models.FileField(upload_to=patient_directory_path, blank=True, null=True)
   upload_date = models.DateField(verbose_name='Data dodania dokumentu', blank=True, null=True)
   description = models.TextField(verbose_name= 'Komentarz',blank=True, null=True)
+  is_active = models.BooleanField(
+    default= True,
+    verbose_name = "Czy aktywny (Nieusunięty)"
+  )
 
   def __str__(self):
     return f"{self.name} {self.upload_date}- {self.patient.last_name}"
