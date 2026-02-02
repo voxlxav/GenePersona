@@ -277,7 +277,9 @@ class TherapyCycle(models.Model):
     Patient,
     on_delete=models.CASCADE,
     related_name='therapy_cycles',
-    verbose_name='Pacjent'
+    verbose_name='Pacjent',
+    null=True,
+    blank=True
   )
   diagnosis = models.ForeignKey(
     Diagnosis,
@@ -323,9 +325,9 @@ class TherapyCycle(models.Model):
 
 
   def __str__(self):
-    if self.diagnosis:
-      return f'{self.patient.last_name} - {self.protocol_name} (Leczenie: {self.diagnosis.name})'
-    return f'{self.patient.last_name} - {self.protocol_name}'
+    if hasattr(self,'patient') and self.patient:
+      return f"{self.protocol_name} - {self.patient}"
+    return f"{self.protocol_name} (Bez pacjenta)"
 
 
   class Meta:

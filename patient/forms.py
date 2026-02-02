@@ -55,20 +55,15 @@ class TherapyCycleForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
       self.patient_obj = kwargs.pop('patient', None)
-      patient_id = kwargs.pop('patient_id', None)
 
-      super(TherapyCycleForm, self).__init__(*args, **kwargs)
+      super().__init__(*args, **kwargs)
 
       if self.patient_obj:
         self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient=self.patient_obj)
-      elif patient_id:
-        self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient_id=patient_id)
+      elif self.instance and self.instance.pk:
+        self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient=self.instance.patient)
       else:
-        # Jeśli to edycja istniejącego cyklu, pobierz pacjenta z instancji
-        if self.instance and self.instance.pk:
-          self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient=self.instance.patient)
-        else:
-          self.fields['diagnosis'].queryset = Diagnosis.objects.none()
+        self.fields['diagnosis'].queryset = Diagnosis.objects.none()
 
 class MedicalDocumentForm(forms.ModelForm):
     class Meta:
@@ -97,4 +92,10 @@ class AppointmentForm(forms.ModelForm):
 class MutationForm(forms.ModelForm):
   class Meta:
     model = Mutation
-    fields = ["gene","mutation_type"]
+    fields = ["gene","chromosome_location","mutation_type","vaf"]
+    widgets = {
+      "gene": forms.TextInput(attrs={'class':'form-control'}),
+      "chromosome_location": forms.TextInput(attrs={'class':'form-control'}),
+      "mutation_type": forms.Select(attrs={'class':'form-select'}),
+      "vaf": forms.NumberInput(attrs={'class':'form-control'})
+    }

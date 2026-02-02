@@ -233,6 +233,8 @@ def delete_patient(request, pk):
 
   if request.method == "POST":
     patient.is_active = False
+    patient.save()
+    messages.success(request, "Pacjent został usunięty (przeniesiony do archiwum).")
     return redirect("home")
 
   return redirect("patient_detail", pk=pk)
