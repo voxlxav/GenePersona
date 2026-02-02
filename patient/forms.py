@@ -81,13 +81,13 @@ class AppointmentForm(forms.ModelForm):
     model = Appointment
     fields = ["date_time","appointment_type","notes","status"]
     widgets = {
-      "date_time": forms.DateInput(attrs={'type': 'date'}),
+      "date_time": forms.DateInput(attrs={'type': 'datetime'}),
       "appointment_type": forms.Select(attrs={'class':'form-control'}),
       "notes": forms.Textarea(attrs={'class':'form-control','rows':'2'}),
-      "status": forms.Select(attrs={'class':'form-select'}),
+      "status": forms.Select(attrs={'class':'form-select'})
     }
 
 class MutationForm(forms.ModelForm):
   class Meta:
     model = Mutation
-    fields = ["gene_name","mutation_type"]
+    fields = ["gene","mutation_type"]

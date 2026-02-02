@@ -17,7 +17,6 @@ urlpatterns = [
 
     path('home/', views.home, name='home'),
 
-    # Patient detail
     path('patient/<int:pk>/', views.patient_detail, name='patient_detail'),
 
     # Delete patient
@@ -29,12 +28,8 @@ urlpatterns = [
     # Appointments
     path('appointments/', views.appointments, name='appointments'),
 
-#edycja dokumentacji medycznej:
-    path('therapy-cycle/<int:pk>/edit/', views.edit_therapy_cycle, name='edit_therapy_cycle'),
-
     #Manage medical documents
     path('patient/<int:pk>/add_document/', views.add_document, name='add_document'),
-
 ]
 
 if settings.DEBUG:
