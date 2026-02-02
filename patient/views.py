@@ -91,10 +91,10 @@ def patient_detail(request, pk):
     obj_id = request.POST.get("object_id")
 
     if not post_action:
-      form = PatientForm(request.POST, instance=patient)
-      if form.is_valid():
+      main_patient_form = PatientForm(request.POST, instance=patient)
+      if main_patient_form.is_valid():
 
-        form.save()
+        main_patient_form.save()
         messages.success(request, "Zaktualizowano dane pacjenta.")
         return redirect("patient_detail", pk=pk)
 
@@ -105,9 +105,18 @@ def patient_detail(request, pk):
       if form.is_valid():
         obj = form.save(commit=False)
         obj.patient = patient
-        obj.save()
-        messages.success(request, "Zapisano wizytę.")
-        return redirect("patient_detail", pk=pk)
+
+        try:
+          obj.doctor = request.user.doctor_profile
+          obj.save()
+          messages.success(request, "Zapisano wizytę.")
+          return redirect("patient_detail", pk=pk)
+        except AttributeError:
+          form.add_error(None, "Błąd: Nie masz przypisanego profilu lekarza.")
+          sub_modal_form = form
+          sub_modal_title = "Błąd uprawnień"
+          action_type = "appointment"
+
       else:
         sub_modal_form = form
         sub_modal_title = "Błąd w formularzu wizyty"
@@ -230,7 +239,7 @@ def delete_patient(request, pk):
 
 @login_required(login_url='login')
 def add_document(request):
-  patient = get_object_or_404(Patient, pk=pk)
+  patient = get_object_or_404(Patient, pk = pk)
 
   if request.method == "POST":
     form = MedicalDocumentForm(request.POST, request.FILES)

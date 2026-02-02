@@ -13,7 +13,7 @@ class PatientForm(forms.ModelForm):
           "phone_number","email"
         ]
         widgets = {
-          "date_of_birth": forms.DateInput(attrs={'type':'date','class':'form-control'}),
+          "date_of_birth": forms.DateInput(attrs={'type':'date','class':'form-control'},format='%Y-%m-%d'),
           "first_name": forms.TextInput(attrs={'class':'form-control'}),
           "last_name": forms.TextInput(attrs={'class':'form-control'}),
           "pesel": forms.TextInput(attrs={'class':'form-control'}),
@@ -32,7 +32,7 @@ class DiagnosisForm(forms.ModelForm):
               "node_stage","metastasis_stage","description","status"
               ]
     widgets = {
-      "diagnosis_date": forms.DateInput(attrs={'type': 'date'}),
+      "diagnosis_date": forms.DateInput(attrs={'type': 'date'},format='%Y-%m-%d'),
       "icd_code": forms.Select(attrs={'class':'form-select'}),
       "name": forms.TextInput(attrs={'class':'form-control'}),
       "tumor_stage": forms.Select(attrs={'class':'form-select'}),
@@ -47,24 +47,28 @@ class TherapyCycleForm(forms.ModelForm):
         model = TherapyCycle
         fields = ["protocol_name", "diagnosis", "start_date", "end_date", "status"]
         widgets = {
-          "start_date": forms.DateInput(attrs={"type": "date"}),
-          "end_date": forms.DateInput(attrs={"type": "date"}),
+          "start_date": forms.DateInput(attrs={"type": "date"},format='%Y-%m-%d'),
+          "end_date": forms.DateInput(attrs={"type":"date"},format='%Y-%m-%d'),
           "diagnosis": forms.Select(attrs={'class':'form-select'}),
-          "protocol_name": forms.Select(attrs={'class':'form-control'}),
+          "protocol_name": forms.TextInput(attrs={'class':'form-control'}),
           "status": forms.Select(attrs={'class':'form-select'}),
         }
     def __init__(self, *args, **kwargs):
+      self.patient_obj = kwargs.pop('patient', None)
+      patient_id = kwargs.pop('patient_id', None)
+
       super(TherapyCycleForm, self).__init__(*args, **kwargs)
-      if patient:
-        self.fields["diagnosis"].queryset = Diagnosis.objects.filter(
-          patient = patient
-        )
-        if self.fields["diagnosis"].queryset.count() == 1:
-          self.fields["diagnosis"].initial = (
-            self.fields["diagnosis"].queryset.first()
-          )
+
+      if self.patient_obj:
+        self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient=self.patient_obj)
+      elif patient_id:
+        self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient_id=patient_id)
       else:
-        self.fields["diagnosis"].initial = Diagnosis.objects.none()
+        # Jeśli to edycja istniejącego cyklu, pobierz pacjenta z instancji
+        if self.instance and self.instance.pk:
+          self.fields['diagnosis'].queryset = Diagnosis.objects.filter(patient=self.instance.patient)
+        else:
+          self.fields['diagnosis'].queryset = Diagnosis.objects.none()
 
 class MedicalDocumentForm(forms.ModelForm):
     class Meta:
@@ -81,7 +85,10 @@ class AppointmentForm(forms.ModelForm):
     model = Appointment
     fields = ["date_time","appointment_type","notes","status"]
     widgets = {
-      "date_time": forms.DateInput(attrs={'type': 'datetime'}),
+      "date_time": forms.DateTimeInput(
+        attrs={'class':'form-control','type': 'datetime-local'},
+        format='%Y-%m-%dT%H:%M'
+      ),
       "appointment_type": forms.Select(attrs={'class':'form-control'}),
       "notes": forms.Textarea(attrs={'class':'form-control','rows':'2'}),
       "status": forms.Select(attrs={'class':'form-select'})
