@@ -85,7 +85,9 @@ def patient_detail(request, pk):
   sub_modal_title = ""
   action_type = ""
   object_id = ""
+  document_upload_mode = False
 
+  main_patient_form = PatientForm(instance=patient)
   if request.method == "POST":
     post_action = request.POST.get("action_type")
     obj_id = request.POST.get("object_id")
@@ -165,6 +167,21 @@ def patient_detail(request, pk):
         sub_modal_form = form
         sub_modal_title = "Błąd w formularzu mutacji"
         action_type = "mutation"
+
+    elif post_action == "document":
+      form = MedicalDocumentForm(request.POST, request.FILES)
+      if form.is_valid():
+        doc = form.save(commit=False)
+        doc.patient = patient
+        doc.save()
+        messages.success(request, "Dodano dokument.")
+        return redirect("patient_detail", pk=pk)
+      else:
+        sub_modal_form = form
+        sub_modal_title = "Błąd dodawania dokumentu"
+        action_type = "document"
+        document_upload_mode = True
+
   if not sub_modal_form:
     action = request.GET.get("action")
     target_id = request.GET.get("id")
@@ -214,7 +231,11 @@ def patient_detail(request, pk):
       action_type = "mutation"
       object_id = obj.id
 
-  main_patient_form = PatientForm(instance=patient)
+    elif action == "add_document":
+      sub_modal_form = MedicalDocumentForm()
+      sub_modal_title = "Dodaj dokument medyczny"
+      action_type = "document"
+      document_upload_mode = True
 
   return render(request, "home_page/patient_detail.html", {
     "patient": patient,
@@ -224,6 +245,7 @@ def patient_detail(request, pk):
     "sub_modal_title": sub_modal_title,
     "action_type": action_type,
     "object_id": object_id,
+    "document_upload_mode": document_upload_mode
   })
 
 
@@ -238,20 +260,3 @@ def delete_patient(request, pk):
     return redirect("home")
 
   return redirect("patient_detail", pk=pk)
-
-@login_required(login_url='login')
-def add_document(request):
-  patient = get_object_or_404(Patient, pk = pk)
-
-  if request.method == "POST":
-    form = MedicalDocumentForm(request.POST, request.FILES)
-    if form.is_valid():
-      document = form.save(commit=False)
-      document.patient = patient
-      document.save()
-      messages.success(request, "Dodano dokument do karty pacjenta")
-      return redirect("patient_detail", pk=patient.pk)
-  else:
-    form = MedicalDocumentForm()
-
-  return render(request, "home_page/patient_detail.html", {'form':form, 'patient':patient})

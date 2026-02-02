@@ -26,10 +26,7 @@ urlpatterns = [
     path('add_patient/', views.add_patient, name='add_patient'),
 
     # Appointments
-    path('appointments/', views.appointments, name='appointments'),
-
-    #Manage medical documents
-    path('patient/<int:pk>/add_document/', views.add_document, name='add_document'),
+    path('appointments/', views.appointments, name='appointments')
 ]
 
 if settings.DEBUG:
