@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
+from patient.choices import ICD10Choices, TNM_T_Choices, TNM_N_Choices, TNM_M_Choices
+
+
 def validate_pesel(value):
   if len(value) != 11:
     raise ValidationError('PESEL musi mieć 11 znaków.')
@@ -149,7 +152,8 @@ class Diagnosis(models.Model):
   icd_code =models.CharField(
     max_length= 10,
     verbose_name= 'Kod ICD-10',
-    help_text= 'np. C34.1',
+    choices= ICD10Choices.choices,
+    default= ICD10Choices.OTHER,
     blank= True,
     null= True
   )
@@ -161,19 +165,19 @@ class Diagnosis(models.Model):
   tumor_stage = models.CharField(
     max_length=10,
     verbose_name='Cecha T (Guz)',
-    help_text='Wielkość guza pierwotnego (np. T1, T2)',
+    choices= TNM_T_Choices.choices,
     blank=True, null=True
   )
   node_stage = models.CharField(
     max_length=10,
     verbose_name='Cecha N (Węzły)',
-    help_text='Stan regionalnych węzłów chłonnych (np. N0, N1)',
+    choices= TNM_N_Choices.choices,
     blank=True, null=True
   )
   metastasis_stage = models.CharField(
     max_length=10,
     verbose_name='Cecha M (Przerzuty)',
-    help_text='Obecność przerzutów odległych (np. M0, M1)',
+    choices=TNM_M_Choices.choices,
     blank=True, null=True
   )
 
