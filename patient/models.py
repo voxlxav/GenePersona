@@ -365,7 +365,7 @@ class Response(models.Model):
   )
 
   def __str__(self):
-    return f'{self.therapy_cycle} - {self.assessment_date}'
+    return f'{self.response_cycle_id} - {self.assessment_date}'
 
 
 class Meta:

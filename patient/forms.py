@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Q
 import patient
-from patient.models import Patient, MedicalDocument, Appointment, Mutation, TherapyCycle, Diagnosis
+from patient.models import Patient, MedicalDocument, Appointment, Mutation, TherapyCycle, Diagnosis, Response, AdverseEvent
 
 
 class PatientForm(forms.ModelForm):
@@ -146,3 +146,42 @@ class GeneralAppointmentForm(forms.ModelForm):
     else:
       self.fields["patient"].queryset = Patient.objects.none()
 
+class ResponseForm(forms.ModelForm):
+  class Meta:
+    model = Response
+    fields = ["response_cycle_id","assessment_date","recist_result","notes"]
+    widgets = {
+      "response_cycle_id": forms.Select(attrs={'class':'form-select'}),
+      "assessment_date": forms.DateInput(attrs={"type": "date"},format='%Y-%m-%d'),
+      "recist_result": forms.Select(attrs={'class':'form-select'}),
+      'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+    }
+
+  def __init__(self,patient,*args, **kwargs):
+    super().__init__(*args, **kwargs)
+
+    if patient:
+      self.fields["response_cycle_id"].queryset = TherapyCycle.objects.filter(patient = patient)
+    else:
+      self.fields["response_cycle_id"].queryset = TherapyCycle.objects.none()
+
+class AdverseEventForm(forms.ModelForm):
+  class Meta:
+    model = AdverseEvent
+    fields = ["therapy_cycle", "event_date", "description", "severity", "action_taken"]
+    widgets = {
+      'therapy_cycle': forms.Select(attrs={'class': 'form-select'}),
+      'event_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, format='%Y-%m-%d'),
+      'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+      'severity': forms.Select(attrs={'class': 'form-select'}),
+      # MAŁA POPRAWKA: dla Textarea lepiej użyć klasy 'form-control' niż 'form-select'
+      'action_taken': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+    }
+
+  def __init__(self, patient, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+
+    if patient:
+      self.fields["therapy_cycle"].queryset = TherapyCycle.objects.filter(patient=patient)
+    else:
+      self.fields["therapy_cycle"].queryset = TherapyCycle.objects.none()

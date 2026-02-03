@@ -9,8 +9,8 @@ from django.db.models import Q
 import json
 
 from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm, AppointmentForm, DiagnosisForm, MutationForm, \
-  ConsultingDoctorsForm, GeneralAppointmentForm
-from patient.models import Patient, Doctor, Appointment, TherapyCycle, Diagnosis, Mutation
+  ConsultingDoctorsForm, GeneralAppointmentForm, ResponseForm, AdverseEventForm
+from patient.models import Patient, Doctor, Appointment, TherapyCycle, Diagnosis, Mutation, Response, AdverseEvent
 
 
 @login_required(login_url='login')
@@ -209,6 +209,35 @@ def patient_detail(request, pk):
         sub_modal_title = "Zarządzaj konsultantami"
         action_type = "consulting_doctors"
 
+    elif post_action == "response":
+      instance = get_object_or_404(Response, pk=obj_id) if obj_id else None
+      form = ResponseForm(patient, request.POST, instance = instance)
+
+      if form.is_valid():
+        response = form.save(commit=False)
+        response.save()
+        messages.success(request, "Dodano odpowiedź na leczenie.")
+        return redirect('patient_detail', pk=pk)
+      else:
+        sub_modal_form = form
+        sub_modal_title = "Błąd w dodawaniu odpowiedzi na leczenie"
+        action_type = "response"
+
+    elif post_action == "adverse_event":
+      instance = get_object_or_404(AdverseEvent, pk=obj_id) if obj_id else None
+      form = AdverseEventForm(patient, request.POST,instance=instance)
+      if form.is_valid():
+        adverse_event = form.save(commit=False)
+        adverse_event.save()
+        messages.success(request, "Dodano działanie niepożądane.")
+        return redirect('patient_detail', pk=pk)
+      else:
+        sub_modal_form = form
+        sub_modal_title = "Błąd w dodawaniu działania niepożądanego"
+        action_type = "response"
+
+
+
   if not sub_modal_form:
     action = request.GET.get("action")
     target_id = request.GET.get("id")
@@ -268,6 +297,29 @@ def patient_detail(request, pk):
       sub_modal_form = ConsultingDoctorsForm(instance=patient)
       sub_modal_title = "Zarządzaj lekarzami konsultującymi"
       action_type = "consulting_doctors"
+
+    elif action == "add_response":
+      sub_modal_form = ResponseForm(patient=patient)
+      sub_modal_title = "Dodaj odpowiedź na leczenie"
+      action_type = "response"
+    elif action == "edit_response" and target_id:
+      obj = get_object_or_404(Response, pk=target_id)
+      sub_modal_form = ResponseForm(instance=obj,patient=patient)
+      sub_modal_title = "Edytuj odpowiedź na leczenie"
+      action_type = "response"
+      object_id = obj.id
+
+    elif action == "add_adverse_event":
+      sub_modal_form = AdverseEventForm(patient=patient)
+      sub_modal_title = "Dodaj działanie niepożądane"
+      action_type = "adverse_event"
+    elif action == "edit_adverse_event" and target_id:
+      obj = get_object_or_404(AdverseEvent, pk=target_id)
+      sub_modal_form = AdverseEventForm(instance=obj,patient=patient)
+      sub_modal_title = "Edytuj działanie niepożądane"
+      action_type = "adverse_event"
+      object_id = obj.id
+
 
   return render(request, "home_page/patient_detail.html", {
     "patient": patient,

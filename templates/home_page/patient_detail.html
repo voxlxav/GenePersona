@@ -200,19 +200,35 @@
         </div>
 
         <div class="patient-section">
-            <h2>Odpowiedź na leczenie (RECIST)</h2>
+            <div class="section-header-flex">
+                <h2>Odpowiedź na leczenie</h2>
+                <a href="?action=add_response" class="btn-small-add">+ Dodaj</a>
+            </div>
             {% for cycle in patient.therapy_cycles.all %}
                 {% for r in cycle.response_ci.all %}
-                <div class="response-item"><strong>{{ r.assessment_date }}</strong> — {{ r.recist_result }}</div>
+                <div class="response-item">
+                    <div style="display: flex;justify-content: space-between;align-items: center">
+                        <p><strong>{{ r.assessment_date }}</strong> — {{ r.recist_result }}</p>
+                        <a href="?action=edit_response&id={{ r.id }}" class="btn-icon">✎</a>
+                    </div>
+                </div>
                 {% endfor %}
             {% empty %}<p>Brak danych.</p>{% endfor %}
         </div>
 
         <div class="patient-section">
-            <h2>Zdarzenia niepożądane</h2>
+            <div class="section-header-flex">
+                <h2>Zdarzenia niepożądane</h2>
+                <a href="?action=add_adverse_event" class="btn-small-add">+ Dodaj</a>
+            </div>
             {% for cycle in patient.therapy_cycles.all %}
                 {% for e in cycle.adverse_events.all %}
-                <div class="event-item"><strong>{{ e.event_date }}</strong> — {{ e.severity }} ({{ e.description }})</div>
+                <div class="event-item">
+                    <div style="display: flex;justify-content: space-between;align-items: center">
+                        <p><strong>{{ e.event_date }}</strong> — {{ e.severity }} ({{ e.description }})</p>
+                        <a href="?action=edit_adverse_event&id={{ e.id }}" class="btn-icon">✎</a>
+                    </div>
+                </div>
                 {% endfor %}
             {% empty %}<p>Brak zdarzeń.</p>{% endfor %}
         </div>
