@@ -698,3 +698,44 @@ select:focus {
 .sort-active {
     color: var(--accent-color) !important;
 }
+
+.sort-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort-info {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    margin-left: 10px;
+}
+
+.sort-info i {
+    font-size: 0.8rem;
+    color: #ccc;
+}
+
+.sort-info small {
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 4px; 
+    padding: 1px 4px;
+    position: absolute;
+    top: -12px;
+    right: -8px;
+    line-height: 1;
+}
+
+.sort-active {
+    color: var(--accent-color) !important;
+}
+
+.patient-table th:hover {
+    background-color: #f1f5f9;
+}

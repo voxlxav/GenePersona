@@ -122,62 +122,99 @@
                     <table class="patient-table">
                         <thead>
                             <tr>
-                                <th class="col-name" onclick="sortTable(0)">
+                                <th class="col-name sortable" data-col="name">
                                     <div class="sort-wrapper">
                                         Imię i nazwisko
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-birth" onclick="sortTable(1)">
+                                <th class="col-birth sortable" data-col="birth">
                                     <div class="sort-wrapper">
                                         Data urodzenia
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-gender" onclick="sortTable(2)">
+                                <th class="col-gender sortable" data-col="gender">  
                                     <div class="sort-wrapper">
                                         Płeć
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-pesel" onclick="sortTable(3)">
+                                <th class="col-pesel sortable" data-col="pesel">
                                     <div class="sort-wrapper">
                                         PESEL
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-phone" onclick="sortTable(4)">
+                                <th class="col-phone sortable" data-col="phone">
                                     <div class="sort-wrapper">
                                         Telefon
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-last_visit" onclick="sortTable(5)">
+                                <th class="col-last_visit sortable" data-col="last_visit">
                                     <div class="sort-wrapper">
                                         Ostatnia wizyta
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-last_diagnosis" onclick="sortTable(6)">
+                                <th class="col-last_diagnosis sortable" data-col="last_diagnosis">
                                     <div class="sort-wrapper">
                                         Ostatnia diagnoza
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
-                                <th class="col-last_therapy_cycle" onclick="sortTable(7)">
+                                <th class="col-last_therapy_cycle sortable" data-col="last_therapy_cycle">
                                     <div class="sort-wrapper">
                                         Ostatni cykl terapii
+                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
+                                        <small></small>
+                                        </span>
                                     </div></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for p in patients %}
-                            <tr>
-                                <td class="col-name"><a href="{% url 'patient_detail' p.id %}">{{ p.first_name }} {{ p.last_name }}</a></td>
-                                <td class="col-birth">{{ p.date_of_birth }}</td>
-                                <td class="col-gender">{{ p.gender }}</td>
-                                <td class="col-pesel">{{ p.pesel }}</td>
-                                <td class="col-phone">{{ p.phone_number|default:"-" }}</td>
-                                <td class="col-last_visit">{{ p.last_visit }}</td>
-                                <td class="col-last_diagnosis">{{ p.last_diagnosis }}</td>
-                                <td class="col-last_therapy_cycle">{{ p.last_therapy_cycle }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+                       <tbody>
+                        {% for p in patients %}
+                        <tr>
+                            <td class="col-name"><a href="{% url 'patient_detail' p.id %}">{{ p.first_name }} {{ p.last_name }}</a></td>
+                            
+                            <td class="col-birth" data-order="{{ p.date_of_birth|date:'Ymd' }}">
+                                {{ p.date_of_birth }}
+                            </td>
+                            
+                            <td class="col-gender">{{ p.gender }}</td>
+                            <td class="col-pesel">{{ p.pesel }}</td>
+                            <td class="col-phone">{{ p.phone_number|default:"-" }}</td>
+                            
+                            <td class="col-last_visit" data-order="{{ p.get_last_appointment|date:'Ymd'|default:'00000000' }}">
+                                {{ p.get_last_appointment|default:"-" }}
+                            </td>
+                            
+                            <td class="col-last_diagnosis">
+                                {{ p.get_last_icd|default:"-" }}
+                            </td>
+                            
+                            <td class="col-last_therapy_cycle">
+                                {{ p.get_last_therapy|default:"-" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                     </table>
                 </div>
 
@@ -289,106 +326,113 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. MODAL, SIDEBAR I KOLUMNY (Standard)
     const modal = document.getElementById("patientModal");
-    if(modal) {
-        document.getElementById("openModal").addEventListener("click", () => modal.style.display = "flex");
-        document.getElementById("closeModal").addEventListener("click", () => modal.style.display = "none");
-        document.getElementById("cancelModal").addEventListener("click", () => modal.style.display = "none");
-    }
+    if(document.getElementById("openModal")) document.getElementById("openModal").onclick = () => modal.style.display = "flex";
+    if(document.getElementById("closeModal")) document.getElementById("closeModal").onclick = () => modal.style.display = "none";
+    if(document.getElementById("cancelModal")) document.getElementById("cancelModal").onclick = () => modal.style.display = "none";
 
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.querySelector('.dashboard-sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-
-    function toggleMenu() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
-
     if(menuToggle) {
-        menuToggle.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
+        const toggle = () => { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); };
+        menuToggle.onclick = toggle; overlay.onclick = toggle;
     }
-});
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.getElementById('columnToggleBtn');
-    const menu = document.getElementById('columnMenu');
+    const colBtn = document.getElementById('columnToggleBtn');
+    const colMenu = document.getElementById('columnMenu');
+    if(colBtn) {
+        colBtn.onclick = (e) => { e.stopPropagation(); colMenu.classList.toggle('active'); };
+        document.onclick = () => colMenu.classList.remove('active');
+        colMenu.onclick = (e) => e.stopPropagation();
+        colMenu.querySelectorAll('input').forEach(cb => {
+            cb.onchange = function() {
+                document.querySelectorAll('.' + this.dataset.column).forEach(el => el.style.display = this.checked ? '' : 'none');
+            };
+        });
+    }
 
-    // Pokazywanie/ukrywanie menu
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('active');
-    });
+    // 2. INTELIGENTNY MULTISORTING (8 KOLUMN)
+    let sortStack = [];
 
-    document.addEventListener('click', () => menu.classList.remove('active'));
-    menu.addEventListener('click', (e) => e.stopPropagation());
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', function() {
+            const colName = this.dataset.col;
+            let idx = sortStack.findIndex(s => s.col === colName);
 
-    const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const colClass = this.getAttribute('data-column');
-            const cells = document.querySelectorAll('.' + colClass);
-            cells.forEach(cell => {
-                cell.style.display = this.checked ? '' : 'none';
-            });
+            if (idx >= 0) {
+                if (sortStack[idx].dir === 'asc') sortStack[idx].dir = 'desc';
+                else sortStack.splice(idx, 1);
+            } else {
+                sortStack.push({ col: colName, dir: 'asc' });
+            }
+            applyMultiSort();
+            updateSortIcons();
         });
     });
+
+    function getVal(row, col) {
+        const cell = row.querySelector(`.col-${col}`);
+        if (!cell) return "";
+
+        // Priorytet dla dat (ukryte data-order)
+        if (cell.hasAttribute('data-order')) {
+            return parseInt(cell.getAttribute('data-order'), 10) || 0;
+        }
+
+        let val = cell.innerText.trim();
+
+        // Liczby (PESEL, Telefon)
+        if (col === 'pesel' || col === 'phone') {
+            const num = val.replace(/\D/g, '');
+            return num ? parseInt(num, 10) : 0;
+        }
+
+        // Tekst (zwykły i linki)
+        return val.toLowerCase();
+    }
+
+    function applyMultiSort() {
+        const tbody = document.querySelector(".patient-table tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        if (rows.length === 0) return;
+
+        rows.sort((a, b) => {
+            for (let s of sortStack) {
+                let vA = getVal(a, s.col);
+                let vB = getVal(b, s.col);
+
+                if (vA === vB) continue; // Jeśli równe, sprawdź kolejny poziom
+
+                if (typeof vA === 'number' && typeof vB === 'number') {
+                    return s.dir === 'asc' ? vA - vB : vB - vA;
+                }
+                
+                let res = String(vA).localeCompare(String(vB), 'pl', { sensitivity: 'base' });
+                return s.dir === 'asc' ? res : -res;
+            }
+            return 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function updateSortIcons() {
+        document.querySelectorAll('.sortable').forEach(h => {
+            const i = h.querySelector('i');
+            const b = h.querySelector('small');
+            const idx = sortStack.findIndex(s => s.col === h.dataset.col);
+            if (idx >= 0) {
+                i.className = `fa-solid fa-sort-${sortStack[idx].dir === 'asc' ? 'up' : 'down'} sort-active`;
+                b.textContent = idx + 1;
+            } else {
+                i.className = 'fa-solid fa-sort';
+                b.textContent = '';
+            }
+        });
+    }
 });
-
-function sortTable(n) {
-    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    table = document.querySelector(".patient-table");
-    switching = true;
-    dir = "asc";
-
-    table.querySelectorAll("i").forEach(icon => icon.className = "fa-solid fa-sort");
-
-    while (switching) {
-        switching = false;
-        rows = table.rows;
-
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
-
-            let xContent = x.textContent.toLowerCase().trim();
-            let yContent = y.textContent.toLowerCase().trim();
-
-            if (dir == "asc") {
-                if (xContent > yContent) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir == "desc") {
-                if (xContent < yContent) {
-                    shouldSwitch = true;
-                    break;
-                }
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount++;
-        } else {
-            if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-            }
-        }
-    }
-
-    const activeIcon = table.querySelectorAll("th")[n].querySelector("i");
-    if (dir == "asc") {
-        activeIcon.className = "fa-solid fa-sort-up sort-active";
-    } else {
-        activeIcon.className = "fa-solid fa-sort-down sort-active";
-    }
-}
 </script>
 
 
