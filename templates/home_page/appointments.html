@@ -235,12 +235,12 @@
                     week: 'Tydzień',
                     day: 'Dzień'
                 },
-                height: 600, 
-                events: [
-                    { title: 'Jan Kowalski', start: '2024-02-15T10:30:00', backgroundColor: '#003aa7', borderColor: '#003aa7' },
-                    { title: 'Anna Nowak', start: '2024-02-16T14:00:00', backgroundColor: '#10b981', borderColor: '#10b981' },
-                    { title: 'Piotr Wiśniewski', start: '2024-02-16T09:00:00', backgroundColor: '#ef4444', borderColor: '#ef4444' }
-                ],
+                height: 600,
+
+                events: {{ events_json | safe }},
+                eventClick: function(info) {
+                    alert('Wizyta: ' + info.event.title + '\nData: ' + info.event.start.toLocaleDateString())},
+
                 eventTimeFormat: { 
                     hour: '2-digit', minute: '2-digit', meridiem: false
                 }

@@ -1,9 +1,11 @@
 from django.contrib.admindocs.utils import docutils_is_available
 from django.core.paginator import Paginator
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+import json
 
 from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm, AppointmentForm, DiagnosisForm, MutationForm, \
   ConsultingDoctorsForm, GeneralAppointmentForm
@@ -292,7 +294,7 @@ def delete_patient(request, pk):
   return redirect("patient_detail", pk=pk)
 
 @login_required(login_url='login')
-def add_document(request):
+def add_document(request, pk):
   patient = get_object_or_404(Patient, pk = pk)
 
   if request.method == "POST":
@@ -308,28 +310,55 @@ def add_document(request):
 
   return render(request, "home_page/patient_detail.html", {'form':form, 'patient':patient})
 
-@login_required
+
+@login_required(login_url='login')
 def appointments(request):
+  # 1. Pobieranie danych do kalendarza i tabeli
   my_appointments = []
+  events_data = []
+
   try:
     if hasattr(request.user, 'doctor_profile'):
-      my_appointments = Appointment.objects.filter(
-        doctor=request.user.doctor_profile
-      ).order_by('-date')
-  except Exception:
-    pass
+      doctor = request.user.doctor_profile
+      # Sortujemy wizyty po dacie i godzinie
+      my_appointments = Appointment.objects.filter(doctor=doctor).order_by('-date_time')
 
-    if request.method == "POST":
-      form = GeneralAppointmentForm(request.user,request.POST)
-      if form.is_valid():
-        appointment = form.save(commit=False)
-        try:
-          appointment.doctor = request.user.doctor_profile
-          appointment.save()
-          messages.success(request, f"Dodano wizytę dla pacjenta: {appointment.patient}")
-          redirect("appointments")
-        except AttributeError:
-          messages.error(request, "Popraw błędy w formularzu.")
+      for app in my_appointments:
+        # Konwersja na string, żeby uniknąć błędu "object is not callable"
+        # Używamy bezpiecznego pobierania nazwisk i typów
+        patient_str = str(app.patient)
+        type_str = str(app.appointment_type)
+
+        events_data.append({
+          'title': f"{patient_str} - {type_str}",
+          'start': app.date_time.isoformat(),  # Data z godziną dla kalendarza
+          # Opcjonalnie różne kolory
+          'color': '#3788d8' if app.appointment_type == 'Konsultacja' else '#28a745'
+        })
+  except Exception as e:
+    print(f"Błąd pobierania wizyt: {e}")
+
+  events_json = json.dumps(events_data, cls=DjangoJSONEncoder)
+
+  if request.method == "POST":
+    form = GeneralAppointmentForm(request.user, request.POST)
+    if form.is_valid():
+      appointment = form.save(commit=False)
+      try:
+        appointment.doctor = request.user.doctor_profile
+        appointment.save()
+        messages.success(request, f"Dodano wizytę dla pacjenta: {appointment.patient}")
+
+        return redirect("appointments")
+      except AttributeError:
+        messages.error(request, "Błąd: Nie masz profilu lekarza.")
     else:
-      form = GeneralAppointmentForm(request.user)
-    return render(request, 'home_page/appointments.html',{'appointments':my_appointments,'form':form})
+      messages.error(request, "Popraw błędy w formularzu.")
+  else:
+    form = GeneralAppointmentForm(request.user)
+
+  return render(request, 'home_page/appointments.html', {
+    'appointments': my_appointments,
+    'events_json': events_json,
+    'form': form
+  })
