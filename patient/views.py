@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm, AppointmentForm, DiagnosisForm, MutationForm, \
-  ConsultingDoctorsForm
+  ConsultingDoctorsForm, GeneralAppointmentForm
 from patient.models import Patient, Doctor, Appointment, TherapyCycle, Diagnosis, Mutation
 
 
@@ -308,6 +308,28 @@ def add_document(request):
 
   return render(request, "home_page/patient_detail.html", {'form':form, 'patient':patient})
 
+@login_required
 def appointments(request):
-    # Tutaj w przyszłości pobierzemy wizyty z bazy
-    return render(request, 'home_page/appointments.html')
+  my_appointments = []
+  try:
+    if hasattr(request.user, 'doctor_profile'):
+      my_appointments = Appointment.objects.filter(
+        doctor=request.user.doctor_profile
+      ).order_by('-date')
+  except Exception:
+    pass
+
+    if request.method == "POST":
+      form = GeneralAppointmentForm(request.user,request.POST)
+      if form.is_valid():
+        appointment = form.save(commit=False)
+        try:
+          appointment.doctor = request.user.doctor_profile
+          appointment.save()
+          messages.success(request, f"Dodano wizytę dla pacjenta: {appointment.patient}")
+          redirect("appointments")
+        except AttributeError:
+          messages.error(request, "Popraw błędy w formularzu.")
+    else:
+      form = GeneralAppointmentForm(request.user)
+    return render(request, 'home_page/appointments.html',{'appointments':my_appointments,'form':form})

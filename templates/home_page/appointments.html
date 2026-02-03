@@ -142,37 +142,49 @@
             <button class="close-btn" id="closeAppointmentModal">&times;</button>
         </div>
 
-        <form method="post" class="patient-form">
+        <form method="post" action="{% url 'add_appointment_general' %}" class="patient-form">
             {% csrf_token %}
+
             <div class="form-group">
-                <label>Pacjent</label>
-                <select name="patient" required>
-                    <option>Wybierz pacjenta...</option>
-                    {% for p in patients %}
-                    <option value="{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</option>
-                    {% endfor %}
-                </select>
+                <label for = {{ form.patient.id_for_label }}>Wybierz pacjenta:</label>
+                {{ form.patient }}
+                {% if form.patient.errors %}
+                    <div class="error-msg">{{ appointment_form.patient.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Data</label>
-                    <input type="date" name="date" required>
+                    <label for="{{ form.date_time.id_for_label }}">Data</label>
+                    {{ form.date_time}}
+                    {% if form.date.errors %}
+                        <div style="color: red; font-size: 0.9em;">{{ form.date.errors }}</div>
+                    {% endif %}
                 </div>
+                </div>
+
+            <div class="form-group">
+                <label for = {{ form.appointment_type.id_for_label}}>Cel wizyty</label>
+                {{ form.appointment_type}}
+                {% if form.appointment_type.errors %}
+                    <div style="color: red; font-size: 0.9em;">{{ form.recommendations.errors }}</div>
+                {% endif %}
+            </div>
+
                 <div class="form-group">
-                    <label>Godzina</label>
-                    <input type="time" name="time" required>
-                </div>
+                <label for = {{ form.status.id_for_label}}>Status wizyty</label>
+                {{ form.status}}
+                {% if form.status.errors %}
+                    <div style="color: red; font-size: 0.9em;">{{ form.recommendations.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="form-group">
-                <label>Cel wizyty</label>
-                <input type="text" name="purpose" placeholder="np. Konsultacja, Badanie..." required>
-            </div>
-
-            <div class="form-group">
-                <label>Notatki</label>
-                <textarea name="notes" rows="3"></textarea>
+                <label for = {{ form.notes.id_for_label }}>Notatki / Zalecenia</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div style="color: red; font-size: 0.9em;">{{ form.recommendations.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="modal-footer">

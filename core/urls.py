@@ -26,7 +26,8 @@ urlpatterns = [
     path('add_patient/', views.add_patient, name='add_patient'),
 
     # Appointments
-    path('appointments/', views.appointments, name='appointments')
+    path('appointments/', views.appointments, name='appointments'),
+    path('appointments/add/',views.appointments,name='add_appointment_general')
 ]
 
 if settings.DEBUG:

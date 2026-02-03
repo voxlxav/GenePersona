@@ -1,5 +1,5 @@
 from django import forms
-
+from django.db.models import Q
 import patient
 from patient.models import Patient, MedicalDocument, Appointment, Mutation, TherapyCycle, Diagnosis
 
@@ -111,11 +111,38 @@ class ConsultingDoctorsForm(forms.ModelForm):
       "consulting_doctors": forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'})
     }
 
-    def __init__(self,*args, **kwargs):
-      super().__init__(*args, **kwargs)
+  def __init__(self,*args, **kwargs):
+    super().__init__(*args, **kwargs)
 
-      if self.instance and self.instance.pk:
-        attending = self.instance.attending_doctor
-        if attending:
-          current_qs = self.fields['consulting_doctors'].queryset
-          self.fields['consulting_doctors'].queryset = current_qs.exclude(pk=attending.pk)
+    if self.instance and self.instance.pk:
+      attending = self.instance.attending_doctor
+      if attending:
+        current_qs = self.fields['consulting_doctors'].queryset
+        self.fields['consulting_doctors'].queryset = current_qs.exclude(pk=attending.pk)
+
+class GeneralAppointmentForm(forms.ModelForm):
+  class Meta:
+    model = Appointment
+    fields = ["patient","date_time","appointment_type","notes","status"]
+    widgets = {
+      "patient": forms.Select(attrs={'class':'form-select'}),
+      "date_time": forms.DateTimeInput(
+        attrs={'class':'form-control','type': 'datetime-local'},
+        format='%Y-%m-%dT%H:%M'
+      ),
+      "appointment_type": forms.Select(attrs={'class':'form-control'}),
+      "notes": forms.Textarea(attrs={'class':'form-control','rows':'2'}),
+      "status": forms.Select(attrs={'class':'form-select'})
+    }
+  def __init__(self,user,*args, **kwargs):
+    super().__init__(*args, **kwargs)
+
+    if hasattr(user, 'doctor_profile'):
+      doctor = user.doctor_profile
+
+      self.fields["patient"].queryset = Patient.objects.filter(
+        Q(attending_doctor=doctor) | Q(consulting_doctors=doctor)
+      ).distinct()
+    else:
+      self.fields["patient"].queryset = Patient.objects.none()
+
