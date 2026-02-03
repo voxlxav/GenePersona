@@ -4,6 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from django.db.models import Q
 import json
 
@@ -314,26 +315,35 @@ def add_document(request, pk):
 @login_required(login_url='login')
 def appointments(request):
   # 1. Pobieranie danych do kalendarza i tabeli
-  my_appointments = []
+  upcoming_appointments = []
+  past_appointments = []
   events_data = []
 
   try:
     if hasattr(request.user, 'doctor_profile'):
       doctor = request.user.doctor_profile
-      # Sortujemy wizyty po dacie i godzinie
-      my_appointments = Appointment.objects.filter(doctor=doctor).order_by('-date_time')
+      now = timezone.now()
 
-      for app in my_appointments:
-        # Konwersja na string, żeby uniknąć błędu "object is not callable"
-        # Używamy bezpiecznego pobierania nazwisk i typów
+      upcoming_appointments = Appointment.objects.filter(
+        doctor=doctor,
+        date_time__gte=now,
+      ).order_by('date_time')
+
+      past_appointments = Appointment.objects.filter(
+        doctor=doctor,
+        date_time__lt=now,
+      ).order_by('date_time')
+
+      all_appointments = list(upcoming_appointments) + list(past_appointments)
+
+      for app in all_appointments:
         patient_str = str(app.patient)
         type_str = str(app.appointment_type)
 
         events_data.append({
           'title': f"{patient_str} - {type_str}",
-          'start': app.date_time.isoformat(),  # Data z godziną dla kalendarza
-          # Opcjonalnie różne kolory
-          'color': '#3788d8' if app.appointment_type == 'Konsultacja' else '#28a745'
+          'start': app.date_time.isoformat(),
+          'color': '6c757d' if app.date_time < now else ('#3788d8' if app.appointment_type == 'Konsultacja' else '#28a745')
         })
   except Exception as e:
     print(f"Błąd pobierania wizyt: {e}")
@@ -358,7 +368,8 @@ def appointments(request):
     form = GeneralAppointmentForm(request.user)
 
   return render(request, 'home_page/appointments.html', {
-    'appointments': my_appointments,
+    'upcoming_appointments': upcoming_appointments,
+    'past_appointments': past_appointments,
     'events_json': events_json,
     'form': form
   })

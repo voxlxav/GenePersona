@@ -90,15 +90,17 @@
                         <span><i class="fa-solid fa-clock-rotate-left"></i> Historia wizyt</span>
                     </div>
                     <div class="panel-content">
-                        {% for i in "12345" %} 
-                        <div class="visit-item" style="opacity: 0.7;">
-                            <div class="visit-info">
-                                <span class="visit-badge">10.01.2024</span>
-                                <h4>Jan Kowalski</h4>
-                                <p>Konsultacja wstępna • Odbyta</p>
+                        {% for p  in past_appointments %}
+                        <a href="{% url 'patient_detail' p.patient.id %}" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="visit-item" style="opacity: 0.7;">
+                                <div class="visit-info">
+                                    <span class="visit-badge">{{ p.date_time }}</span>
+                                    <h4>{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
+                                    <p>{{ p.appointment_type}}• {{ p.status }}</p>
+                                </div>
+                                <i class="fa-solid fa-check text-success" style="color: #10b981;"></i>
                             </div>
-                            <i class="fa-solid fa-check text-success" style="color: #10b981;"></i>
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>
@@ -106,20 +108,22 @@
                 <div class="dashboard-card">
                     <div class="panel-header accent">
                         <span><i class="fa-solid fa-calendar-day"></i> Nadchodzące</span>
-                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">Dziś: 3</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">Liczba wizyt: {{ upcoming_appointments|length }}</span>
                     </div>
                     <div class="panel-content">
-                        {% for i in "123" %}
-                        <div class="visit-item">
-                            <div class="visit-info">
-                                <span class="visit-badge" style="background: #e0e7ff; color: var(--accent-color);">Jutro, 14:00</span>
-                                <h4>Anna Nowak</h4>
-                                <p>Chemioterapia (Cykl 2) • Gabinet 4</p>
+                        {% for p in upcoming_appointments %}
+                        <a href="{% url 'patient_detail' p.patient.id %}" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="visit-item">
+                                <div class="visit-info">
+                                    <span class="visit-badge" style="background: #e0e7ff; color: var(--accent-color);">{{ p.date_time}}</span>
+                                    <h4>{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
+                                    <p>{{ p.appointment_type }} • {{ p.status }}</p>
+                                </div>
+                                <button style="border:none; background:none; cursor:pointer; color: var(--accent-color);">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
                             </div>
-                            <button style="border:none; background:none; cursor:pointer; color: var(--accent-color);">
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </button>
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>
@@ -238,11 +242,22 @@
                 height: 600,
 
                 events: {{ events_json | safe }},
-                eventClick: function(info) {
-                    alert('Wizyta: ' + info.event.title + '\nData: ' + info.event.start.toLocaleDateString())},
 
-                eventTimeFormat: { 
-                    hour: '2-digit', minute: '2-digit', meridiem: false
+                eventClick: function(info) {
+                    const eventObj = info.event;
+                    const dateObj = eventObj.start;
+                    const dateStr = dateObj.toLocaleDateString('pl-PL');
+                    const timeStr = dateObj.toLocaleTimeString('pl-PL', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    alert(
+                        'Szczegóły wizyty:\n' +
+                        '--------------------------------\n' +
+                        '👤 Pacjent: ' + eventObj.title + '\n\n' +
+                        '📅 Data: ' + dateStr + '\n' +
+                        '⏰ Godzina: ' + timeStr
+                    );
                 }
             });
             calendar.render();
