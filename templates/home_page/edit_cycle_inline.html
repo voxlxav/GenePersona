@@ -1,7 +1,0 @@
-<form method="POST" style="margin-top: 10px; padding: 10px; background: #f5f7fb; border-radius: 8px;">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit" class="btn btn-primary">Zapisz</button>
-    <a href="{% url 'patient_detail' cycle.patient.pk %}" class="btn btn-secondary">Anuluj</a>
-</form>

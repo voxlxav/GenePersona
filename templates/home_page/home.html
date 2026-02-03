@@ -123,14 +123,46 @@
                     <table class="patient-table">
                         <thead>
                             <tr>
-                                <th class="col-name">Imię i nazwisko</th>
-                                <th class="col-birth">Data urodzenia</th>
-                                <th class="col-gender">Płeć</th>
-                                <th class="col-pesel">PESEL</th>
-                                <th class="col-phone">Telefon</th>
-                                <th class="col-last_visit">Ostatnia wizyta</th>
-                                <th class="col-last_diagnosis">Ostatnia diagnoza</th>
-                                <th class="col-last_therapy_cycle">Ostatni cykl terapii</th>
+                                <th class="col-name" onclick="sortTable(0)">
+                                    <div class="sort-wrapper">
+                                        Imię i nazwisko
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-birth" onclick="sortTable(1)">
+                                    <div class="sort-wrapper">
+                                        Data urodzenia
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-gender" onclick="sortTable(2)">  
+                                    <div class="sort-wrapper">
+                                        Płeć
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-pesel" onclick="sortTable(3)">
+                                    <div class="sort-wrapper">
+                                        PESEL
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-phone" onclick="sortTable(4)">
+                                    <div class="sort-wrapper">
+                                        Telefon
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-last_visit" onclick="sortTable(5)">
+                                    <div class="sort-wrapper">
+                                        Ostatnia wizyta
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-last_diagnosis" onclick="sortTable(6)">
+                                    <div class="sort-wrapper">
+                                        Ostatnia diagnoza
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
+                                <th class="col-last_therapy_cycle" onclick="sortTable(7)">
+                                    <div class="sort-wrapper">
+                                        Ostatni cykl terapii
+                                        <i class="fa-solid fa-sort"></i>
+                                    </div></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -258,7 +290,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal Pacjenta
     const modal = document.getElementById("patientModal");
     if(modal) {
         document.getElementById("openModal").addEventListener("click", () => modal.style.display = "flex");
@@ -266,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("cancelModal").addEventListener("click", () => modal.style.display = "none");
     }
 
-    // Hamburger Menu
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.querySelector('.dashboard-sidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -297,7 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', () => menu.classList.remove('active'));
     menu.addEventListener('click', (e) => e.stopPropagation());
 
-    // Logika ukrywania kolumn
     const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
@@ -309,7 +338,60 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.querySelector(".patient-table");
+    switching = true;
+    dir = "asc";
+
+    table.querySelectorAll("i").forEach(icon => icon.className = "fa-solid fa-sort");
+
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+
+            let xContent = x.textContent.toLowerCase().trim();
+            let yContent = y.textContent.toLowerCase().trim();
+
+            if (dir == "asc") {
+                if (xContent > yContent) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else if (dir == "desc") {
+                if (xContent < yContent) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            switchcount++;
+        } else {
+            if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
+    }
+
+    const activeIcon = table.querySelectorAll("th")[n].querySelector("i");
+    if (dir == "asc") {
+        activeIcon.className = "fa-solid fa-sort-up sort-active";
+    } else {
+        activeIcon.className = "fa-solid fa-sort-down sort-active";
+    }
+}
 </script>
+
 
 </body>
 </html>

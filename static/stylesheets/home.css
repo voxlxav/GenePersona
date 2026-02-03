@@ -28,7 +28,6 @@ html, body {
     overflow: hidden;
 }
 
-/* NOWY SIDEBAR (HAMBURGER) */
 .dashboard-sidebar {
     position: fixed;
     left: -300px;
@@ -49,7 +48,6 @@ html, body {
     left: 0; 
 }
 
-/* Tło przyciemniające */
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -138,7 +136,6 @@ html, body {
     z-index: 30;
 }
 
-/* Przycisk Hamburger */
 .hamburger-btn {
     background: transparent;
     border: none;
@@ -600,8 +597,6 @@ select:focus {
         flex-direction: column;
     }
     .dashboard-sidebar {
-        /* Sidebar na mobile jest teraz kontrolowany przez JS (slide-in), 
-           więc domyślnie jest schowany. */
         padding: 32px 24px;
         border-right: 1px solid var(--border-color);
     }
@@ -627,7 +622,6 @@ select:focus {
     }
 }
 
-/* STYL DLA PRZYCISKU I POPUPU KOLUMN */
 .secondary-button {
     background: white;
     border: 1px solid var(--border-color);
@@ -643,7 +637,7 @@ select:focus {
     display: none;
     position: absolute;
     top: 50px;
-    right: 130px; /* dopasuj do przycisku dodaj pacjenta */
+    right: 130px;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -674,7 +668,29 @@ select:focus {
     cursor: pointer;
 }
 
-/* Sidebar - usuwamy Menu 3 */
 .sidebar-nav .nav-item:nth-child(3) {
     display: none;
+}
+
+.sort-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 8px;
+    user-select: none;
+}
+
+.sort-wrapper i {
+    font-size: 0.75rem;
+    color: #ccc;
+    transition: color 0.2s;
+}
+
+.patient-table th:hover .sort-wrapper i {
+    color: var(--accent-color);
+}
+
+.sort-active {
+    color: var(--accent-color) !important;
 }
