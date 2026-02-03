@@ -19,7 +19,7 @@
             <img src="{% static 'images/logo.png' %}" class="sidebar-logo" alt="Logo">
         </a>
 
-        <div class="sidebar-brand-text">
+        <div class="sidebar-brand-text r-mono">
             Panel
         </div>
 
@@ -32,7 +32,6 @@
                 <i class="fa-solid fa-calendar-check" style="color: #194db0;"></i>
                 Zaplanowane wizyty
             </a>
-            <div class="nav-item">Menu 3</div>
         </nav>
     </aside>
 
@@ -54,7 +53,7 @@
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="logout-button">Wyloguj</button>
+                <button type="submit" class="logout-button r-mono">Wyloguj</button>
             </form>
             {% endif %}
         </header>
@@ -89,12 +88,12 @@
             <div class="doctor-view animate-fade-in">
 
                 <div class="view-header">
-                    <h2>Twoi pacjenci</h2>
+                    <h2 class="r-mono">Twoi pacjenci</h2>
                     <div style="position: relative;">
                         <button id="columnToggleBtn" class="secondary-button">
                             <i class="fa-solid fa-table-columns"></i> Kolumny
                         </button>
-                        
+
                         <div id="columnMenu" class="column-settings-popup">
                             <label><input type="checkbox" checked data-column="col-name"> Imię i nazwisko</label>
                             <label><input type="checkbox" checked data-column="col-birth"> Data urodzenia</label>
@@ -112,7 +111,7 @@
                 <div class="search-toolbar" style="margin-bottom: 20px;">
                     <form method="GET" action="{% url 'home' %}" style="display: flex; gap: 10px; max-width: 500px;">
                         <input type="text" name="q" placeholder="Szukaj po nazwisku lub PESEL..." value="{{ search_query }}" class="search-input">
-                        <button type="submit" class="search-button">Szukaj</button>
+                        <button type="submit" class="search-button r-mono">Szukaj</button>
                         {% if search_query %}
                         <a href="{% url 'home' %}" class="clear-search">Wyczyść</a>
                         {% endif %}
@@ -133,7 +132,7 @@
                                         Data urodzenia
                                         <i class="fa-solid fa-sort"></i>
                                     </div></th>
-                                <th class="col-gender" onclick="sortTable(2)">  
+                                <th class="col-gender" onclick="sortTable(2)">
                                     <div class="sort-wrapper">
                                         Płeć
                                         <i class="fa-solid fa-sort"></i>
@@ -350,7 +349,7 @@ function sortTable(n) {
     while (switching) {
         switching = false;
         rows = table.rows;
-        
+
         for (i = 1; i < (rows.length - 1); i++) {
             shouldSwitch = false;
             x = rows[i].getElementsByTagName("TD")[n];

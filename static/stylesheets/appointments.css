@@ -142,6 +142,10 @@ input, select, textarea {
     padding-right: 12px !important;
 }
 
+.r-mono {
+    font-family: "Roboto Mono",monospace;
+}
+
 @media (max-width: 900px) {
     .grid-split { grid-template-columns: 1fr; height: auto; }
     .dashboard-card { height: 400px; }

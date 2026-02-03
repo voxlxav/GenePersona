@@ -6,6 +6,7 @@
     <title>Karta pacjenta</title>
     <link rel="stylesheet" href="{% static 'stylesheets/home.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/patient_detail.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     <style>
         .sub-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -48,18 +49,18 @@
 <div class="modal-overlay" id="modalOverlay"></div>
 
 <div class="patient-actions">
-    <a href="{% url 'home' %}" class="btn-secondary">← Powrót</a>
+    <a href="{% url 'home' %}" class="btn-secondary r-mono"> ← Powrót </a>
         {% if not editing %}
-            <a href="?edit=1" class="btn-primary">Edytuj dane główne</a>
+            <a href="?edit=1" class="btn-primary r-mono">Edytuj dane główne</a>
             {% if is_attending_doctor %}
-            <a href="?action=manage_consultants" class="btn-secondary" style="margin-left: 5px;">
+            <a href="?action=manage_consultants" class="btn-secondary r-mono" style="margin-left: 5px;">
                  Konsultanci
             </a>
             {% endif %}
     {% endif %}
     <form method="post" action="{% url 'delete_patient' patient.id %}" onsubmit="return confirm('Czy na pewno?');" style="display:inline;">
         {% csrf_token %}
-        <button type="submit" class="btn-danger">Usuń pacjenta</button>
+        <button type="submit" class="btn-danger r-mono">Usuń pacjenta</button>
     </form>
 </div>
 
@@ -70,12 +71,12 @@
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn-primary">Zapisz zmiany</button>
-            <a href="{% url 'patient_detail' patient.id %}" class="btn-secondary">Anuluj</a>
+            <button type="submit" class="submit-btn r-mono">Zapisz zmiany</button>
+            <a href="{% url 'patient_detail' patient.id %}" class="cancel-btn r-mono">Anuluj</a>
         </form>
         {% else %}
         <div class="patient-header">
-            <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+            <h1 class = "r-mono">{{ patient.first_name }} {{ patient.last_name }}</h1>
             <p class="patient-meta">
                 {{ patient.pesel|default:patient.date_of_birth }} • {{ patient.gender }}
             </p>
@@ -95,7 +96,7 @@
         </div>
 
         <div class="patient-section">
-            <h2>Dane osobowe</h2>
+            <h2 class="r-mono">Dane osobowe</h2>
             <div class="section-grid">
                 <div><label>Imię</label><p>{{ patient.first_name }}</p></div>
                 <div><label>Nazwisko</label><p>{{ patient.last_name }}</p></div>
@@ -105,7 +106,7 @@
         </div>
 
         <div class="patient-section">
-            <h2>Adres i Kontakt</h2>
+            <h2 class="r-mono">Adres i Kontakt</h2>
             <div class="section-grid">
                 <div><label>Adres</label><p>{{ patient.address_street }} {{ patient.address_zip_code }} {{ patient.address_city }}</p></div>
                 <div><label>Telefon</label><p>{{ patient.phone_number|default:"—" }}</p></div>
@@ -115,8 +116,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Diagnozy</h2>
-                <a href="?action=add_diagnosis" class="btn-small-add">+ Dodaj</a>
+                <h2 class="r-mono">Diagnozy</h2>
+                <a href="?action=add_diagnosis" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% if patient.diagnoses.all %}
             <table class="patient-table">
@@ -138,8 +139,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Dokumentacja</h2>
-                <a href="?action=add_document" class="btn-small-add">+ Dodaj plik</a>
+                <h2 class = "r-mono">Dokumentacja</h2>
+                <a href="?action=add_document" class="btn-small-add r-mono">+ Dodaj plik</a>
             </div>
             {% if patient.medical_documents.all %}
             <ul class="document-list">
@@ -155,8 +156,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Wizyty</h2>
-                <a href="?action=add_appointment" class="btn-small-add">+ Dodaj</a>
+                <h2 class = "r-mono">Wizyty</h2>
+                <a href="?action=add_appointment" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% if patient.appointments.all %}
             <table class="patient-table">
@@ -178,8 +179,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Cykle terapii</h2>
-                <a href="?action=add_therapy" class="btn-small-add">+ Dodaj</a>
+                <h2 class = "r-mono">Cykle terapii</h2>
+                <a href="?action=add_therapy" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% if patient.therapy_cycles.all %}
             <table class="patient-table">
@@ -201,8 +202,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Odpowiedź na leczenie</h2>
-                <a href="?action=add_response" class="btn-small-add">+ Dodaj</a>
+                <h2 class="r-mono">Odpowiedź na leczenie</h2>
+                <a href="?action=add_response" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% for cycle in patient.therapy_cycles.all %}
                 {% for r in cycle.response_ci.all %}
@@ -218,8 +219,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Zdarzenia niepożądane</h2>
-                <a href="?action=add_adverse_event" class="btn-small-add">+ Dodaj</a>
+                <h2 class = "r-mono">Zdarzenia niepożądane</h2>
+                <a href="?action=add_adverse_event" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% for cycle in patient.therapy_cycles.all %}
                 {% for e in cycle.adverse_events.all %}
@@ -235,8 +236,8 @@
 
         <div class="patient-section">
             <div class="section-header-flex">
-                <h2>Mutacje genetyczne</h2>
-                <a href="?action=add_mutation" class="btn-small-add">+ Dodaj</a>
+                <h2 class = "r-mono">Mutacje genetyczne</h2>
+                <a href="?action=add_mutation" class="btn-small-add r-mono">+ Dodaj</a>
             </div>
             {% if patient.mutations.all %}
             <table class="patient-table">
@@ -262,7 +263,7 @@
 {% if sub_modal_form %}
 <div class="sub-modal-overlay">
     <div class="sub-modal-window">
-        <h3>{{ sub_modal_title }}</h3>
+        <h3 class="r-mono">{{ sub_modal_title }}</h3>
 
         <form method="post" {% if document_upload_mode %}enctype="multipart/form-data"{% endif %}>
             {% csrf_token %}
@@ -272,8 +273,8 @@
             {{ sub_modal_form.as_p }}
 
             <div class="form-actions">
-                <button type="submit" class="btn-primary">Zapisz</button>
-                <a href="{% url 'patient_detail' patient.id %}" class="btn-secondary">Anuluj</a>
+                <button type="submit" class="submit-btn r-mono">Zapisz</button>
+                <a href="{% url 'patient_detail' patient.id %}" class="cancel-btn r-mono">Anuluj</a>
             </div>
         </form>
     </div>

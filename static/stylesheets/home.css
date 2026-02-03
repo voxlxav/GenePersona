@@ -582,6 +582,10 @@ select:focus {
     transform: translateY(-1px);
 }
 
+.r-mono {
+    font-family: 'Roboto Mono', monospace;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

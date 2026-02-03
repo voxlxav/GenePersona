@@ -24,7 +24,7 @@
             <img src="{% static 'images/logo.png' %}" class="sidebar-logo" alt="Logo">
         </a>
 
-        <div class="sidebar-brand-text">Panel</div>
+        <div class="sidebar-brand-text r-mono">Panel</div>
 
         <nav class="sidebar-nav">
             <a href="{% url 'home' %}" class="nav-item">
@@ -55,7 +55,7 @@
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="logout-button">Wyloguj</button>
+                <button type="submit" class="logout-button r-mono">Wyloguj</button>
             </form>
             {% endif %}
         </header>
@@ -95,7 +95,7 @@
                             <div class="visit-item" style="opacity: 0.7;">
                                 <div class="visit-info">
                                     <span class="visit-badge">{{ p.date_time }}</span>
-                                    <h4>{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
+                                    <h4 class="r-mono">{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
                                     <p>{{ p.appointment_type}}• {{ p.status }}</p>
                                 </div>
                                 <i class="fa-solid fa-check text-success" style="color: #10b981;"></i>
@@ -116,7 +116,7 @@
                             <div class="visit-item">
                                 <div class="visit-info">
                                     <span class="visit-badge" style="background: #e0e7ff; color: var(--accent-color);">{{ p.date_time}}</span>
-                                    <h4>{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
+                                    <h4 class="r-mono">{{ p.patient.first_name }} {{ p.patient.last_name }}</h4>
                                     <p>{{ p.appointment_type }} • {{ p.status }}</p>
                                 </div>
                                 <button style="border:none; background:none; cursor:pointer; color: var(--accent-color);">
@@ -142,7 +142,7 @@
     <div class="modal-content">
 
         <div class="modal-header">
-            <h2>Nowa Wizyta</h2>
+            <h2 class="r-mono">Nowa Wizyta</h2>
             <button class="close-btn" id="closeAppointmentModal">&times;</button>
         </div>
 
@@ -192,8 +192,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="cancel-btn" id="cancelAppointmentModal">Anuluj</button>
-                <button type="submit" class="submit-btn">Zapisz wizytę</button>
+                <button type="button" class="cancel-btn r-mono" id="cancelAppointmentModal">Anuluj</button>
+                <button type="submit" class="submit-btn r-mono">Zapisz wizytę</button>
             </div>
         </form>
 
