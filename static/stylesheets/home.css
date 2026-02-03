@@ -626,3 +626,55 @@ select:focus {
         max-width: 100%;
     }
 }
+
+/* STYL DLA PRZYCISKU I POPUPU KOLUMN */
+.secondary-button {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: 10px;
+    color: var(--text-secondary);
+}
+
+.column-settings-popup {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 130px; /* dopasuj do przycisku dodaj pacjenta */
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 15px;
+    z-index: 1000;
+    min-width: 180px;
+}
+
+.column-settings-popup.active {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.column-settings-popup label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.column-settings-popup input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Sidebar - usuwamy Menu 3 */
+.sidebar-nav .nav-item:nth-child(3) {
+    display: none;
+}

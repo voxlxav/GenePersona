@@ -89,12 +89,24 @@
             <div class="doctor-view animate-fade-in">
 
                 <div class="view-header">
-                    <div>
-                        <h2>Twoi pacjenci</h2>
-                        <p>Lista pacjentów przypisanych do Ciebie</p>
+                    <h2>Twoi pacjenci</h2>
+                    <div style="position: relative;">
+                        <button id="columnToggleBtn" class="secondary-button">
+                            <i class="fa-solid fa-table-columns"></i> Kolumny
+                        </button>
+                        
+                        <div id="columnMenu" class="column-settings-popup">
+                            <label><input type="checkbox" checked data-column="col-name"> Imię i nazwisko</label>
+                            <label><input type="checkbox" checked data-column="col-birth"> Data urodzenia</label>
+                            <label><input type="checkbox" checked data-column="col-gender"> Płeć</label>
+                            <label><input type="checkbox" checked data-column="col-pesel"> PESEL</label>
+                            <label><input type="checkbox" checked data-column="col-phone"> Telefon</label>
+                            <label><input type="checkbox" checked data-column="col-last_visit"> Ostatnia wizyta</label>
+                            <label><input type="checkbox" checked data-column="col-last_diagnosis"> Ostatnia diagnoza</label>
+                            <label><input type="checkbox" checked data-column="col-last_therapy_cycle"> Ostatni cykl terapii</label>
+                        </div>
+                        <button id="openModal" class="add-button">+ Dodaj pacjenta</button>
                     </div>
-
-                    <button id="openModal" class="add-button">Dodaj pacjenta</button>
                 </div>
 
                 <div class="search-toolbar" style="margin-bottom: 20px;">
@@ -111,27 +123,27 @@
                     <table class="patient-table">
                         <thead>
                             <tr>
-                                <th>Imię i nazwisko</th>
-                                <th>Data urodzenia</th>
-                                <th>Płeć</th>
-                                <th>Pesel</th>
+                                <th class="col-name">Imię i nazwisko</th>
+                                <th class="col-birth">Data urodzenia</th>
+                                <th class="col-gender">Płeć</th>
+                                <th class="col-pesel">PESEL</th>
+                                <th class="col-phone">Telefon</th>
+                                <th class="col-last_visit">Ostatnia wizyta</th>
+                                <th class="col-last_diagnosis">Ostatnia diagnoza</th>
+                                <th class="col-last_therapy_cycle">Ostatni cykl terapii</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for p in patients %}
                             <tr>
-                                <td class="mono">
-                                    <a href="{% url 'patient_detail' p.id %}">
-                                        {{ p.first_name }} {{ p.last_name }}
-                                    </a>
-                                </td>
-                                <td>{{ p.date_of_birth }}</td>
-                                <td class="mono">{{ p.gender }}</td>
-                                <td>{{ p.pesel }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4">Brak pacjentów</td>
+                                <td class="col-name"><a href="{% url 'patient_detail' p.id %}">{{ p.first_name }} {{ p.last_name }}</a></td>
+                                <td class="col-birth">{{ p.date_of_birth }}</td>
+                                <td class="col-gender">{{ p.gender }}</td>
+                                <td class="col-pesel">{{ p.pesel }}</td>
+                                <td class="col-phone">{{ p.phone_number|default:"-" }}</td>
+                                <td class="col-last_visit">{{ p.last_visit }}</td>
+                                <td class="col-last_diagnosis">{{ p.last_diagnosis }}</td>
+                                <td class="col-last_therapy_cycle">{{ p.last_therapy_cycle }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -268,6 +280,34 @@ document.addEventListener('DOMContentLoaded', function() {
         menuToggle.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
     }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('columnToggleBtn');
+    const menu = document.getElementById('columnMenu');
+
+    // Pokazywanie/ukrywanie menu
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', () => menu.classList.remove('active'));
+    menu.addEventListener('click', (e) => e.stopPropagation());
+
+    // Logika ukrywania kolumn
+    const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const colClass = this.getAttribute('data-column');
+            const cells = document.querySelectorAll('.' + colClass);
+            cells.forEach(cell => {
+                cell.style.display = this.checked ? '' : 'none';
+            });
+        });
+    });
 });
 </script>
 
