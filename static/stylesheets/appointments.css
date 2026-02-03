@@ -82,7 +82,7 @@
     height: 64px;
     background-color: var(--accent-color);
     color: white;
-    border-radius: 50%; 
+    border-radius: 50%;
     border: none;
     box-shadow: 0 4px 12px rgba(0, 58, 167, 0.4);
     font-size: 24px;
@@ -115,13 +115,13 @@
 .fc-day-today { background-color: rgba(0, 58, 167, 0.03) !important; }
 
 .fc-button {
-    border-radius: 25px !important; 
-    margin: 0 2px !important;       
-    border: none !important;        
+    border-radius: 10px !important;
+    margin: 0 2px !important;
+    border: none !important;
 }
 .fc-button-group > .fc-button {
-    border-radius: 25px !important; 
-    flex: none !important; 
+    border-radius: 10px !important;
+    flex: none !important;
 }
 .fc-icon {
     font-size: 1.2em !important;
@@ -134,7 +134,7 @@
 .visit-badge,
 input, select, textarea,
 .submit-btn, .cancel-btn {
-    border-radius: 25px !important;
+    border-radius: 10px !important;
 }
 
 input, select, textarea {

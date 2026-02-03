@@ -39,6 +39,14 @@
     <div class="dashboard-main">
 
         <header class="dashboard-header">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <button id="menuToggle" class="hamburger-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <h3 style="margin: 0; color: var(--accent-color);">Gene<span style="color: var(--text-primary);">Persona</span></h3>
+            </div>
+
             <div class="user-greeting">
                 Witaj, <span>{{ user.first_name }} {{ user.last_name }}</span>
             </div>
@@ -54,7 +62,7 @@
           {% if messages %}
         <div style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
             {% for message in messages %}
-            <div style="padding: 10px; border-radius: 25px; margin-bottom: 10px;
+            <div style="padding: 10px; border-radius: 10px; margin-bottom: 10px;
             {% if message.tags == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;
             {% else %}background-color: #dcfce7; color: #166534; border: 1px solid #4ade80;{% endif %}">
                 {{ message }}
@@ -234,17 +242,32 @@
     </div>
 </div>
 
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
 <script>
-document.getElementById("openModal").addEventListener("click", () => {
-    document.getElementById("patientModal").style.display = "flex";
-});
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal Pacjenta
+    const modal = document.getElementById("patientModal");
+    if(modal) {
+        document.getElementById("openModal").addEventListener("click", () => modal.style.display = "flex");
+        document.getElementById("closeModal").addEventListener("click", () => modal.style.display = "none");
+        document.getElementById("cancelModal").addEventListener("click", () => modal.style.display = "none");
+    }
 
-document.getElementById("closeModal").addEventListener("click", () => {
-    document.getElementById("patientModal").style.display = "none";
-});
+    // Hamburger Menu
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.dashboard-sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
 
-document.getElementById("cancelModal").addEventListener("click", () => {
-    document.getElementById("patientModal").style.display = "none";
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    if(menuToggle) {
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+    }
 });
 </script>
 

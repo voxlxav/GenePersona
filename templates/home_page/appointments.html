@@ -41,6 +41,14 @@
     <div class="dashboard-main">
 
         <header class="dashboard-header">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <button id="menuToggle" class="hamburger-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <h3 style="margin: 0; color: var(--accent-color);">Gene<span style="color: var(--text-primary);">Persona</span></h3>
+            </div>
+
             <div class="user-greeting">
                 Witaj, <span>{{ user.first_name }} {{ user.last_name }}</span>
             </div>
@@ -55,7 +63,7 @@
         {% if messages %}
         <div style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
             {% for message in messages %}
-            <div style="padding: 10px; border-radius: 25px; margin-bottom: 10px;
+            <div style="padding: 10px; border-radius: 10px; margin-bottom: 10px;
             {% if message.tags == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;
             {% else %}background-color: #dcfce7; color: #166534; border: 1px solid #4ade80;{% endif %}">
                 {{ message }}
@@ -98,7 +106,7 @@
                 <div class="dashboard-card">
                     <div class="panel-header accent">
                         <span><i class="fa-solid fa-calendar-day"></i> Nadchodzące</span>
-                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 25px; font-size: 0.8em;">Dziś: 3</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">Dziś: 3</span>
                     </div>
                     <div class="panel-content">
                         {% for i in "123" %}
@@ -176,86 +184,88 @@
     </div>
 </div>
 
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        // 1. OBSŁUGA ZEGARA
+        // ZEGAR
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('pl-PL');
             const dateString = now.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
-            document.getElementById('live-clock').textContent = timeString;
-            document.getElementById('live-date').textContent = dateString;
+            const clockEl = document.getElementById('live-clock');
+            const dateEl = document.getElementById('live-date');
+            
+            if(clockEl) clockEl.textContent = timeString;
+            if(dateEl) dateEl.textContent = dateString;
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 2. INICJALIZACJA KALENDARZA
+        // KALENDARZ
         var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'pl',
-        firstDay: 1,
-        // --- NOWA LINIA: To sprawia, że wizyta jest kolorowym prostokątem, a nie kropką ---
-        eventDisplay: 'block', 
-        // --------------------------------------------------------------------------------
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        buttonText: {
-            today: 'Dziś',
-            month: 'Miesiąc',
-            week: 'Tydzień',
-            day: 'Dzień'
-        },
-        height: 600, // Zwiększyłem lekko wysokość, żeby więcej się zmieściło
-        events: [
-            {
-                title: 'Jan Kowalski',
-                start: '2024-02-15T10:30:00',
-                backgroundColor: '#003aa7', // Twój kolor granatowy
-                borderColor: '#003aa7'
-            },
-            {
-                title: 'Anna Nowak',
-                start: '2024-02-16T14:00:00',
-                backgroundColor: '#10b981', // Zielony (np. potwierdzona)
-                borderColor: '#10b981'
-            },
-            {
-                title: 'Piotr Wiśniewski',
-                start: '2024-02-16T09:00:00',
-                backgroundColor: '#ef4444', // Czerwony (np. pilne)
-                borderColor: '#ef4444'
-            }
-        ],
-        eventTimeFormat: { // Format godziny na kafelku (np. 14:30)
-            hour: '2-digit',
-            minute: '2-digit',
-            meridiem: false
+        if (calendarEl) {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pl',
+                firstDay: 1,
+                eventDisplay: 'block', 
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'Dziś',
+                    month: 'Miesiąc',
+                    week: 'Tydzień',
+                    day: 'Dzień'
+                },
+                height: 600, 
+                events: [
+                    { title: 'Jan Kowalski', start: '2024-02-15T10:30:00', backgroundColor: '#003aa7', borderColor: '#003aa7' },
+                    { title: 'Anna Nowak', start: '2024-02-16T14:00:00', backgroundColor: '#10b981', borderColor: '#10b981' },
+                    { title: 'Piotr Wiśniewski', start: '2024-02-16T09:00:00', backgroundColor: '#ef4444', borderColor: '#ef4444' }
+                ],
+                eventTimeFormat: { 
+                    hour: '2-digit', minute: '2-digit', meridiem: false
+                }
+            });
+            calendar.render();
         }
-    });
-        calendar.render();
 
-        // 3. OBSŁUGA MODALA (Pop-up)
+        // MODAL WIZYTY
         const modal = document.getElementById("appointmentModal");
         const openBtn = document.getElementById("openAppointmentModal");
         const closeBtn = document.getElementById("closeAppointmentModal");
         const cancelBtn = document.getElementById("cancelAppointmentModal");
 
-        openBtn.addEventListener("click", () => modal.style.display = "flex");
-        closeBtn.addEventListener("click", () => modal.style.display = "none");
-        cancelBtn.addEventListener("click", () => modal.style.display = "none");
+        if(openBtn) openBtn.addEventListener("click", () => modal.style.display = "flex");
+        if(closeBtn) closeBtn.addEventListener("click", () => modal.style.display = "none");
+        if(cancelBtn) cancelBtn.addEventListener("click", () => modal.style.display = "none");
         
-        // Zamknij po kliknięciu w tło
         window.addEventListener("click", (e) => {
             if (e.target === modal) {
                 modal.style.display = "none";
             }
         });
+
+        // HAMBURGER MENU
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.dashboard-sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        if(menuToggle) {
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        }
     });
 </script>
 
