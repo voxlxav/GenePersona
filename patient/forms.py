@@ -99,3 +99,23 @@ class MutationForm(forms.ModelForm):
       "mutation_type": forms.Select(attrs={'class':'form-select'}),
       "vaf": forms.NumberInput(attrs={'class':'form-control'})
     }
+
+class ConsultingDoctorsForm(forms.ModelForm):
+  class Meta:
+    model = Patient
+    fields = ["consulting_doctors"]
+    labels = {
+      "consulting_doctors": "Zaznacz lekarzy konsultujących"
+    }
+    widgets = {
+      "consulting_doctors": forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'})
+    }
+
+    def __init__(self,*args, **kwargs):
+      super().__init__(*args, **kwargs)
+
+      if self.instance and self.instance.pk:
+        attending = self.instance.attending_doctor
+        if attending:
+          current_qs = self.fields['consulting_doctors'].queryset
+          self.fields['consulting_doctors'].queryset = current_qs.exclude(pk=attending.pk)

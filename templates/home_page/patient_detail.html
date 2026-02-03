@@ -52,8 +52,13 @@
 
 <div class="patient-actions">
     <a href="{% url 'home' %}" class="btn-secondary">← Powrót</a>
-    {% if not editing %}
-        <a href="?edit=1" class="btn-primary">Edytuj dane główne</a>
+        {% if not editing %}
+            <a href="?edit=1" class="btn-primary">Edytuj dane główne</a>
+            {% if is_attending_doctor %}
+            <a href="?action=manage_consultants" class="btn-secondary" style="margin-left: 5px;">
+                 Konsultanci
+            </a>
+            {% endif %}
     {% endif %}
     <form method="post" action="{% url 'delete_patient' patient.id %}" onsubmit="return confirm('Czy na pewno?');" style="display:inline;">
         {% csrf_token %}
@@ -78,8 +83,18 @@
                 {{ patient.pesel|default:patient.date_of_birth }} • {{ patient.gender }}
             </p>
             {% if patient.attending_doctor %}
-            <p class="doctor-info">Lekarz prowadzący: <strong>{{ patient.attending_doctor }}</strong></p>
+                <p class="doctor-info">Lekarz prowadzący: <strong>{{ patient.attending_doctor }}</strong></p>
             {% endif %}
+            {% if patient.consulting_doctors.all %}
+                    <p style="margin-bottom: 0;">Lekarze konsultujący:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #555;">
+                        {% for doc in patient.consulting_doctors.all %}
+                            <li>{{ doc }}</li>
+                            {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color: #999; font-style: italic; font-size: 0.9em;">Brak lekarzy konsultujących.</p>
+                {% endif %}
         </div>
 
         <div class="patient-section">

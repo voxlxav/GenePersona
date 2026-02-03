@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm, AppointmentForm, DiagnosisForm, MutationForm
+from .forms import PatientForm, TherapyCycleForm, MedicalDocumentForm, AppointmentForm, DiagnosisForm, MutationForm, \
+  ConsultingDoctorsForm
 from patient.models import Patient, Doctor, Appointment, TherapyCycle, Diagnosis, Mutation
 
 
@@ -86,6 +87,13 @@ def patient_detail(request, pk):
   action_type = ""
   object_id = ""
   document_upload_mode = False
+  is_attending_doctor = False
+
+  try:
+    if request.user.doctor_profile == patient.attending_doctor:
+      is_attending_doctor = True
+  except AttributeError:
+    pass
 
   main_patient_form = PatientForm(instance=patient)
   if request.method == "POST":
@@ -182,6 +190,22 @@ def patient_detail(request, pk):
         action_type = "document"
         document_upload_mode = True
 
+    elif post_action == "consulting_doctors":
+
+      if not is_attending_doctor:
+        messages.error(request, "Tylko lekarz prowadzący może zmieniać konsultantów.")
+        return redirect("patient_detail", pk=pk)
+
+      form = ConsultingDoctorsForm(request.POST, instance = patient)
+      if form.is_valid():
+        form.save()
+        messages.success(request, "Zaktualizowano listę lekarzy konsultujących.")
+        return redirect("patient_detail", pk=pk)
+      else:
+        sub_modal_form = form
+        sub_modal_title = "Zarządzaj konsultantami"
+        action_type = "consulting_doctors"
+
   if not sub_modal_form:
     action = request.GET.get("action")
     target_id = request.GET.get("id")
@@ -237,6 +261,11 @@ def patient_detail(request, pk):
       action_type = "document"
       document_upload_mode = True
 
+    elif action == "manage_consultants":
+      sub_modal_form = ConsultingDoctorsForm(instance=patient)
+      sub_modal_title = "Zarządzaj lekarzami konsultującymi"
+      action_type = "consulting_doctors"
+
   return render(request, "home_page/patient_detail.html", {
     "patient": patient,
     "form": main_patient_form,
@@ -245,7 +274,8 @@ def patient_detail(request, pk):
     "sub_modal_title": sub_modal_title,
     "action_type": action_type,
     "object_id": object_id,
-    "document_upload_mode": document_upload_mode
+    "document_upload_mode": document_upload_mode,
+    "is_attending_doctor": is_attending_doctor
   })
 
 
