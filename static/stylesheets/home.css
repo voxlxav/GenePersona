@@ -18,10 +18,8 @@ html, body {
     background-color: var(--app-bg);
     color: var(--text-primary);
     font-family: var(--font-sans);
-    /* Usunięto overflow: hidden dla body, aby umożliwić naturalne przewijanie, jeśli potrzebne */
 }
 
-/* DASHBOARD LAYOUT */
 .dashboard-layout {
     display: flex;
     height: 100vh;
@@ -30,7 +28,6 @@ html, body {
     overflow: hidden;
 }
 
-/* SIDEBAR */
 .dashboard-sidebar {
     width: 280px;
     background: var(--sidebar-bg);
@@ -69,7 +66,7 @@ html, body {
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    border-radius: 10px;
+    border-radius: 25px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -87,17 +84,15 @@ html, body {
     background: var(--accent-color);
 }
 
-/* MAIN CONTENT AREA */
 .dashboard-main {
     flex: 1;
     display: flex;
     flex-direction: column;
     z-index: 10;
     position: relative;
-    overflow-y: auto; /* Przewijanie tylko głównej treści */
+    overflow-y: auto;
 }
 
-/* HEADER */
 .dashboard-header {
     height: 72px;
     display: flex;
@@ -127,7 +122,7 @@ html, body {
     color: #ef4444;
     border: 1px solid #ef4444;
     padding: 6px 16px;
-    border-radius: 6px;
+    border-radius: 25px;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -139,7 +134,6 @@ html, body {
     color: white;
 }
 
-/* CONTENT CONTAINER */
 .dashboard-content {
     padding: 40px;
     max-width: 1200px;
@@ -148,7 +142,6 @@ html, body {
     box-sizing: border-box;
 }
 
-/* DOCTOR VIEW HEADER & BUTTONS */
 .view-header {
     display: flex;
     justify-content: space-between;
@@ -173,11 +166,11 @@ html, body {
     color: white;
     border: none;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 25px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    text-decoration: none; /* Ważne, bo to link a nie button */
+    text-decoration: none;
     display: inline-block;
 }
 
@@ -185,7 +178,6 @@ html, body {
     opacity: 0.9;
     transform: translateY(-1px);
 }
-
 
 .search-toolbar {
     margin-bottom: 20px;
@@ -201,7 +193,7 @@ html, body {
     flex: 1;
     padding: 10px 16px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 25px;
     font-family: var(--font-sans);
     font-size: 0.9rem;
     outline: none;
@@ -218,7 +210,7 @@ html, body {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    border-radius: 8px;
+    border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
@@ -243,11 +235,10 @@ html, body {
     text-decoration: underline;
 }
 
-/* TABLE */
 .table-container {
     background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 25px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -293,7 +284,7 @@ html, body {
 .patient-table td a,
 .patient-table td a:visited {
     text-decoration: none;
-    color: var(--text-primary); /* Poprawiony kolor linku */
+    color: var(--text-primary);
     font-weight: 600;
     transition: color 0.2s ease;
     display: inline-block;
@@ -304,7 +295,6 @@ html, body {
     text-decoration: underline;
 }
 
-/* --- PAGINACJA --- */
 .pagination-container {
     margin-top: 24px;
     display: flex;
@@ -312,7 +302,7 @@ html, body {
     align-items: center;
     font-size: 0.9rem;
     color: var(--text-secondary);
-    padding-bottom: 20px; /* Odstęp od dołu */
+    padding-bottom: 20px;
 }
 
 .step-links a {
@@ -321,7 +311,7 @@ html, body {
     padding: 8px 12px;
     margin: 0 4px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 25px;
     background: white;
     transition: all 0.2s;
 }
@@ -336,7 +326,6 @@ html, body {
     font-weight: 600;
 }
 
-/* ADMIN VIEW */
 .admin-view {
     display: flex;
     align-items: center;
@@ -350,7 +339,7 @@ html, body {
     padding: 48px;
     background: white;
     border: 1px solid var(--border-color);
-    border-radius: 24px;
+    border-radius: 25px;
 }
 
 .admin-hero h2 {
@@ -373,7 +362,7 @@ html, body {
     padding: 16px 32px;
     font-size: 1rem;
     font-weight: 700;
-    border-radius: 12px;
+    border-radius: 25px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -386,7 +375,6 @@ html, body {
     box-shadow: 0 4px 20px rgba(0, 58, 167, 0.2);
 }
 
-/* ANIMATIONS */
 .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
 }
@@ -396,7 +384,6 @@ html, body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Overlay */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -409,11 +396,10 @@ html, body {
     animation: fadeIn 0.25s ease-out;
 }
 
-/* Modal box */
 .modal-content {
     background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 25px;
     width: 95%;
     max-width: 520px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.12);
@@ -422,7 +408,6 @@ html, body {
     color: var(--text-primary);
 }
 
-/* Header */
 .modal-header {
     padding: 20px 24px;
     border-bottom: 1px solid var(--border-color);
@@ -451,7 +436,6 @@ html, body {
     color: var(--accent-color);
 }
 
-/* Form */
 .patient-form {
     padding: 24px;
     display: flex;
@@ -477,11 +461,10 @@ html, body {
     gap: 16px;
 }
 
-/* Inputs */
 input, textarea {
     padding: 12px 14px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 25px;
     background: #ffffff;
     font-size: 0.95rem;
     font-family: var(--font-sans);
@@ -498,7 +481,7 @@ input:focus, textarea:focus {
 select {
     background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 25px;
     padding: 12px;
     font-size: 0.95rem;
     font-family: var(--font-sans);
@@ -512,7 +495,6 @@ select:focus {
     outline: none;
 }
 
-/* Footer */
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -527,7 +509,7 @@ select:focus {
     padding: 10px 18px;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 25px;
     transition: 0.2s;
 }
 
@@ -540,7 +522,7 @@ select:focus {
     color: white;
     border: none;
     padding: 10px 22px;
-    border-radius: 8px;
+    border-radius: 25px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
@@ -551,7 +533,6 @@ select:focus {
     transform: translateY(-1px);
 }
 
-/* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -562,11 +543,6 @@ select:focus {
     to { transform: scale(1); opacity: 1; }
 }
 
-
-/* ========================================= */
-/* MOBILE RESPONSIVE (MEDIA QUERIES)         */
-/* To MUSI być na samym dole pliku!          */
-/* ========================================= */
 @media (max-width: 768px) {
     .dashboard-layout {
         flex-direction: column;
@@ -590,9 +566,8 @@ select:focus {
         gap: 16px;
     }
 
-    /* Ukrywanie mniej ważnych kolumn na małym ekranie */
-    .patient-table th:nth-child(2), .patient-table td:nth-child(2), /* Data ur */
-    .patient-table th:nth-child(3), .patient-table td:nth-child(3)  /* Płeć */
+    .patient-table th:nth-child(2), .patient-table td:nth-child(2),
+    .patient-table th:nth-child(3), .patient-table td:nth-child(3)
     {
         display: none;
     }

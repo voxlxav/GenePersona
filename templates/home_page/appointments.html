@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaplanowane Wizyty</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stylesheets/home.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/appointments.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    
+    <script src="https://kit.fontawesome.com/0a461084e7.js" crossorigin="anonymous"></script>
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script> 
+</head>
+
+<body>
+<div class="dashboard-layout">
+
+    <aside class="dashboard-sidebar">
+        <a href="{% url 'home' %}" class="sidebar-brand-logo" style="display: block; text-decoration: none;">
+            <img src="{% static 'images/logo.png' %}" class="sidebar-logo" alt="Logo">
+        </a>
+
+        <div class="sidebar-brand-text">Panel</div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'home' %}" class="nav-item">
+                <i class="fa-solid fa-bed" style="color: #7d7d7d;"></i> Pacjenci
+            </a>
+            <a href="{% url 'appointments' %}" class="nav-item active">
+                <i class="fa-solid fa-calendar-check" style="color: #ffffff;"></i>
+                Zaplanowane wizyty
+            </a>
+            <div class="nav-item">Menu 3</div>
+        </nav>
+    </aside>
+
+    <div class="dashboard-main">
+
+        <header class="dashboard-header">
+            <div class="user-greeting">
+                Witaj, <span>{{ user.first_name }} {{ user.last_name }}</span>
+            </div>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Wyloguj</button>
+            </form>
+            {% endif %}
+        </header>
+
+        {% if messages %}
+        <div style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
+            {% for message in messages %}
+            <div style="padding: 10px; border-radius: 25px; margin-bottom: 10px;
+            {% if message.tags == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;
+            {% else %}background-color: #dcfce7; color: #166534; border: 1px solid #4ade80;{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="dashboard-content">
+            
+            <div class="clock-container animate-fade-in">
+                <div id="live-clock" class="clock-time">00:00:00</div>
+                <div id="live-date" class="clock-date">Poniedziałek, 1 Stycznia 2024</div>
+            </div>
+
+            <div class="dashboard-card calendar-wrapper animate-fade-in">
+                <div id='calendar'></div>
+            </div>
+
+            <div class="grid-split animate-fade-in" style="animation-delay: 0.1s;">
+                
+                <div class="dashboard-card">
+                    <div class="panel-header">
+                        <span><i class="fa-solid fa-clock-rotate-left"></i> Historia wizyt</span>
+                    </div>
+                    <div class="panel-content">
+                        {% for i in "12345" %} 
+                        <div class="visit-item" style="opacity: 0.7;">
+                            <div class="visit-info">
+                                <span class="visit-badge">10.01.2024</span>
+                                <h4>Jan Kowalski</h4>
+                                <p>Konsultacja wstępna • Odbyta</p>
+                            </div>
+                            <i class="fa-solid fa-check text-success" style="color: #10b981;"></i>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="panel-header accent">
+                        <span><i class="fa-solid fa-calendar-day"></i> Nadchodzące</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 25px; font-size: 0.8em;">Dziś: 3</span>
+                    </div>
+                    <div class="panel-content">
+                        {% for i in "123" %}
+                        <div class="visit-item">
+                            <div class="visit-info">
+                                <span class="visit-badge" style="background: #e0e7ff; color: var(--accent-color);">Jutro, 14:00</span>
+                                <h4>Anna Nowak</h4>
+                                <p>Chemioterapia (Cykl 2) • Gabinet 4</p>
+                            </div>
+                            <button style="border:none; background:none; cursor:pointer; color: var(--accent-color);">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<button class="fab-button" id="openAppointmentModal" title="Dodaj wizytę">
+    <i class="fa-solid fa-plus"></i>
+</button>
+
+<div id="appointmentModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Nowa Wizyta</h2>
+            <button class="close-btn" id="closeAppointmentModal">&times;</button>
+        </div>
+
+        <form method="post" class="patient-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Pacjent</label>
+                <select name="patient" required>
+                    <option>Wybierz pacjenta...</option>
+                    {% for p in patients %}
+                    <option value="{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Godzina</label>
+                    <input type="time" name="time" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Cel wizyty</label>
+                <input type="text" name="purpose" placeholder="np. Konsultacja, Badanie..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Notatki</label>
+                <textarea name="notes" rows="3"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" id="cancelAppointmentModal">Anuluj</button>
+                <button type="submit" class="submit-btn">Zapisz wizytę</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. OBSŁUGA ZEGARA
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pl-PL');
+            const dateString = now.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('live-clock').textContent = timeString;
+            document.getElementById('live-date').textContent = dateString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2. INICJALIZACJA KALENDARZA
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pl',
+        firstDay: 1,
+        // --- NOWA LINIA: To sprawia, że wizyta jest kolorowym prostokątem, a nie kropką ---
+        eventDisplay: 'block', 
+        // --------------------------------------------------------------------------------
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: 'Dziś',
+            month: 'Miesiąc',
+            week: 'Tydzień',
+            day: 'Dzień'
+        },
+        height: 600, // Zwiększyłem lekko wysokość, żeby więcej się zmieściło
+        events: [
+            {
+                title: 'Jan Kowalski',
+                start: '2024-02-15T10:30:00',
+                backgroundColor: '#003aa7', // Twój kolor granatowy
+                borderColor: '#003aa7'
+            },
+            {
+                title: 'Anna Nowak',
+                start: '2024-02-16T14:00:00',
+                backgroundColor: '#10b981', // Zielony (np. potwierdzona)
+                borderColor: '#10b981'
+            },
+            {
+                title: 'Piotr Wiśniewski',
+                start: '2024-02-16T09:00:00',
+                backgroundColor: '#ef4444', // Czerwony (np. pilne)
+                borderColor: '#ef4444'
+            }
+        ],
+        eventTimeFormat: { // Format godziny na kafelku (np. 14:30)
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false
+        }
+    });
+        calendar.render();
+
+        // 3. OBSŁUGA MODALA (Pop-up)
+        const modal = document.getElementById("appointmentModal");
+        const openBtn = document.getElementById("openAppointmentModal");
+        const closeBtn = document.getElementById("closeAppointmentModal");
+        const cancelBtn = document.getElementById("cancelAppointmentModal");
+
+        openBtn.addEventListener("click", () => modal.style.display = "flex");
+        closeBtn.addEventListener("click", () => modal.style.display = "none");
+        cancelBtn.addEventListener("click", () => modal.style.display = "none");
+        
+        // Zamknij po kliknięciu w tło
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

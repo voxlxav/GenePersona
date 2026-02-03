@@ -1,11 +1,9 @@
-/* TŁO STRONY */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     background: #d9d9d9;
-    overflow: hidden; /* blokuje scroll całej strony */
-}
+    overflow: hidden;
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -66,10 +64,6 @@ html, body {
     cursor: pointer;
     border: none;
     text-decoration: none;
-    transition: background 0.2s ease;
-}
-
-.btn-secondary {
     background: #e6e6e6;
     color: #333;
 }
@@ -197,24 +191,9 @@ html, body {
     margin-bottom: 10px;
 }
 
-/* RESPONSYWNOŚĆ */
-@media (max-width: 768px) {
-    .patient-card {
-        width: 90%;
-        padding: 20px;
-    }
-
-    .patient-header h1 {
-        font-size: 1.5rem;
-    }
-
-    .patient-section h2 {
-        font-size: 1.1rem;
-    }
-}
-
 .patient-card::-webkit-scrollbar {
     width: 8px;
+}
 }
 
 .patient-card::-webkit-scrollbar-thumb {

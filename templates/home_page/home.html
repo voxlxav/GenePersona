@@ -13,7 +13,6 @@
 <body>
 <div class="dashboard-layout">
 
-    <!-- SIDEBAR -->
     <aside class="dashboard-sidebar">
 
         <a href = "{% url 'home' %}" class="sidebar-brand-logo" style="display: block; text-decoration: none;">
@@ -37,10 +36,8 @@
         </nav>
     </aside>
 
-    <!-- MAIN -->
     <div class="dashboard-main">
 
-        <!-- HEADER -->
         <header class="dashboard-header">
             <div class="user-greeting">
                 Witaj, <span>{{ user.first_name }} {{ user.last_name }}</span>
@@ -54,11 +51,10 @@
             {% endif %}
         </header>
 
-        <!-- CONTENT -->
           {% if messages %}
         <div style="max-width: 1200px; margin: 10px auto; padding: 0 20px;">
             {% for message in messages %}
-            <div style="padding: 10px; border-radius: 8px; margin-bottom: 10px;
+            <div style="padding: 10px; border-radius: 25px; margin-bottom: 10px;
             {% if message.tags == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;
             {% else %}background-color: #dcfce7; color: #166534; border: 1px solid #4ade80;{% endif %}">
                 {{ message }}
@@ -90,11 +86,9 @@
                         <p>Lista pacjentów przypisanych do Ciebie</p>
                     </div>
 
-                    <!-- BUTTON OTWIERAJĄCY MODAL -->
                     <button id="openModal" class="add-button">Dodaj pacjenta</button>
                 </div>
 
-                <!-- SEARCH -->
                 <div class="search-toolbar" style="margin-bottom: 20px;">
                     <form method="GET" action="{% url 'home' %}" style="display: flex; gap: 10px; max-width: 500px;">
                         <input type="text" name="q" placeholder="Szukaj po nazwisku lub PESEL..." value="{{ search_query }}" class="search-input">
@@ -105,7 +99,6 @@
                     </form>
                 </div>
 
-                <!-- TABLE -->
                 <div class="table-container">
                     <table class="patient-table">
                         <thead>
@@ -137,7 +130,6 @@
                     </table>
                 </div>
 
-                <!-- PAGINATION -->
                 <div class="pagination-container">
                     <span class="step-links">
                         {% if patients.has_previous %}
@@ -161,10 +153,6 @@
         </div>
     </div>
 </div>
-
-<!-- ========================= -->
-<!--        MODAL FORM         -->
-<!-- ========================= -->
 
 <div id="patientModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
@@ -245,10 +233,6 @@
 
     </div>
 </div>
-
-<!-- ========================= -->
-<!--         MODAL JS          -->
-<!-- ========================= -->
 
 <script>
 document.getElementById("openModal").addEventListener("click", () => {
