@@ -122,66 +122,58 @@
                     <table class="patient-table">
                         <thead>
                             <tr>
-                                <th class="col-name sortable" data-col="name">
+                                <th class="col-name sortable">
                                     <div class="sort-wrapper">
                                         Imię i nazwisko
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-birth sortable" data-col="birth">
+                                <th class="col-birth sortable">
                                     <div class="sort-wrapper">
                                         Data urodzenia
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-gender sortable" data-col="gender">  
+                                <th class="col-gender sortable">
                                     <div class="sort-wrapper">
                                         Płeć
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-pesel sortable" data-col="pesel">
+                                <th class="col-pesel sortable">
                                     <div class="sort-wrapper">
                                         PESEL
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-phone sortable" data-col="phone">
+                                <th class="col-phone sortable">
                                     <div class="sort-wrapper">
                                         Telefon
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-last_visit sortable" data-col="last_visit">
+                                <th class="col-last_visit sortable">
                                     <div class="sort-wrapper">
                                         Ostatnia wizyta
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-last_diagnosis sortable" data-col="last_diagnosis">
+                                <th class="col-last_diagnosis sortable">
                                     <div class="sort-wrapper">
                                         Ostatnia diagnoza
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
                                     </div></th>
-                                <th class="col-last_therapy_cycle sortable" data-col="last_therapy_cycle">
+                                <th class="col-last_therapy_cycle sortable">
                                     <div class="sort-wrapper">
                                         Ostatni cykl terapii
-                                        <span class="sort-info">
                                         <i class="fa-solid fa-sort"></i>
                                         <small></small>
                                         </span>
@@ -201,8 +193,8 @@
                             <td class="col-pesel">{{ p.pesel }}</td>
                             <td class="col-phone">{{ p.phone_number|default:"-" }}</td>
                             
-                            <td class="col-last_visit" data-order="{{ p.get_last_appointment|date:'Ymd'|default:'00000000' }}">
-                                {{ p.get_last_appointment|default:"-" }}
+                            <td class="col-last_visit" data-order="{{ p.get_last_appointment.date_time|date:'Ymd'|default:'00000000' }}">
+                                {{ p.get_last_appointment.date_time|default:"-" }}
                             </td>
                             
                             <td class="col-last_diagnosis">
@@ -325,110 +317,101 @@
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. MODAL, SIDEBAR I KOLUMNY (Standard)
-    const modal = document.getElementById("patientModal");
-    if(document.getElementById("openModal")) document.getElementById("openModal").onclick = () => modal.style.display = "flex";
-    if(document.getElementById("closeModal")) document.getElementById("closeModal").onclick = () => modal.style.display = "none";
-    if(document.getElementById("cancelModal")) document.getElementById("cancelModal").onclick = () => modal.style.display = "none";
+    document.addEventListener('DOMContentLoaded', function() {
+    const table = document.querySelector('.patient-table');
+    const tbody = table.querySelector('tbody');
+    const headers = table.querySelectorAll('th.sortable');
 
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.querySelector('.dashboard-sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    if(menuToggle) {
-        const toggle = () => { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); };
-        menuToggle.onclick = toggle; overlay.onclick = toggle;
-    }
+    // Zmienna trzymająca obecny kierunek sortowania (1 = rosnąco, -1 = malejąco)
+    let currentDir = 1;
+    let currentHeaderIndex = -1;
 
-    const colBtn = document.getElementById('columnToggleBtn');
-    const colMenu = document.getElementById('columnMenu');
-    if(colBtn) {
-        colBtn.onclick = (e) => { e.stopPropagation(); colMenu.classList.toggle('active'); };
-        document.onclick = () => colMenu.classList.remove('active');
-        colMenu.onclick = (e) => e.stopPropagation();
-        colMenu.querySelectorAll('input').forEach(cb => {
-            cb.onchange = function() {
-                document.querySelectorAll('.' + this.dataset.column).forEach(el => el.style.display = this.checked ? '' : 'none');
-            };
-        });
-    }
-
-    // 2. INTELIGENTNY MULTISORTING (8 KOLUMN)
-    let sortStack = [];
-
-    document.querySelectorAll('.sortable').forEach(header => {
-        header.addEventListener('click', function() {
-            const colName = this.dataset.col;
-            let idx = sortStack.findIndex(s => s.col === colName);
-
-            if (idx >= 0) {
-                if (sortStack[idx].dir === 'asc') sortStack[idx].dir = 'desc';
-                else sortStack.splice(idx, 1);
+    headers.forEach((header, index) => {
+        header.addEventListener('click', () => {
+            // 1. Obsługa kierunku (jeśli kliknięto to samo -> odwróć, jeśli inne -> resetuj do rosnąco)
+            if (currentHeaderIndex === index) {
+                currentDir = -currentDir;
             } else {
-                sortStack.push({ col: colName, dir: 'asc' });
+                currentDir = 1;
+                currentHeaderIndex = index;
             }
-            applyMultiSort();
-            updateSortIcons();
+
+            // 2. Aktualizacja ikon
+            updateIcons(headers, index, currentDir);
+
+            // 3. Sortowanie
+            sortGrid(index, currentDir);
         });
     });
 
-    function getVal(row, col) {
-        const cell = row.querySelector(`.col-${col}`);
-        if (!cell) return "";
+    function sortGrid(colIndex, dir) {
+        // Pobieramy wszystkie wiersze
+        const rows = Array.from(tbody.querySelectorAll('tr'));
 
-        // Priorytet dla dat (ukryte data-order)
-        if (cell.hasAttribute('data-order')) {
-            return parseInt(cell.getAttribute('data-order'), 10) || 0;
-        }
+        // Sortujemy
+        rows.sort((rowA, rowB) => {
+            const valA = getCellValue(rowA, colIndex);
+            const valB = getCellValue(rowB, colIndex);
 
-        let val = cell.innerText.trim();
+            // Sprawdzamy czy wartości to liczby (dla PESELu, dat w data-order)
+            const numA = parseFloat(valA);
+            const numB = parseFloat(valB);
 
-        // Liczby (PESEL, Telefon)
-        if (col === 'pesel' || col === 'phone') {
-            const num = val.replace(/\D/g, '');
-            return num ? parseInt(num, 10) : 0;
-        }
-
-        // Tekst (zwykły i linki)
-        return val.toLowerCase();
-    }
-
-    function applyMultiSort() {
-        const tbody = document.querySelector(".patient-table tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-        if (rows.length === 0) return;
-
-        rows.sort((a, b) => {
-            for (let s of sortStack) {
-                let vA = getVal(a, s.col);
-                let vB = getVal(b, s.col);
-
-                if (vA === vB) continue; // Jeśli równe, sprawdź kolejny poziom
-
-                if (typeof vA === 'number' && typeof vB === 'number') {
-                    return s.dir === 'asc' ? vA - vB : vB - vA;
-                }
-                
-                let res = String(vA).localeCompare(String(vB), 'pl', { sensitivity: 'base' });
-                return s.dir === 'asc' ? res : -res;
+            // Jeśli obie wartości są prawidłowymi liczbami -> sortuj matematycznie
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return (numA - numB) * dir;
             }
-            return 0;
+
+            // W przeciwnym razie -> sortuj tekstowo (z polskimi znakami)
+            return String(valA).localeCompare(String(valB), 'pl', { numeric: true }) * dir;
         });
 
-        rows.forEach(r => tbody.appendChild(r));
+        // Wstawiamy posortowane wiersze z powrotem (to jest szybkie)
+        tbody.append(...rows);
     }
 
-    function updateSortIcons() {
-        document.querySelectorAll('.sortable').forEach(h => {
-            const i = h.querySelector('i');
-            const b = h.querySelector('small');
-            const idx = sortStack.findIndex(s => s.col === h.dataset.col);
-            if (idx >= 0) {
-                i.className = `fa-solid fa-sort-${sortStack[idx].dir === 'asc' ? 'up' : 'down'} sort-active`;
-                b.textContent = idx + 1;
+    function getCellValue(row, index) {
+        // Pobieramy komórkę o danym indeksie
+        const cell = row.children[index];
+        if (!cell) return "";
+
+        // Jeśli ma data-order, bierzemy to (priorytet dla dat i wizyt)
+        if (cell.hasAttribute('data-order')) {
+            return cell.getAttribute('data-order');
+        }
+
+        // Jeśli to PESEL lub Telefon, czyścimy ze spacji i myślników
+        // (możesz usunąć ten warunek jeśli data-order załatwia sprawę)
+        let text = cell.innerText.trim();
+
+        // Prosta heurystyka: jeśli tekst wygląda jak długi numer (PESEL), usuń spacje
+        if (/^\d[\d\s-]*$/.test(text) && text.length > 5) {
+             return text.replace(/\D/g, '');
+        }
+
+        return text;
+    }
+
+    function updateIcons(allHeaders, activeIndex, dir) {
+        allHeaders.forEach((th, idx) => {
+            const icon = th.querySelector('i');
+
+            // Usuń klasy stanu
+            th.classList.remove('asc', 'desc');
+
+            if (idx === activeIndex) {
+                // Ustaw klasę na nagłówku (do kolorowania CSS)
+                th.classList.add(dir === 1 ? 'asc' : 'desc');
+
+                // Zmień ikonę
+                if (icon) {
+                    icon.className = dir === 1
+                        ? 'fa-solid fa-sort-up'
+                        : 'fa-solid fa-sort-down';
+                }
             } else {
-                i.className = 'fa-solid fa-sort';
-                b.textContent = '';
+                // Resetuj inne ikony
+                if (icon) icon.className = 'fa-solid fa-sort';
             }
         });
     }

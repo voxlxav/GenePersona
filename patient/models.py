@@ -63,7 +63,22 @@ class Doctor(models.Model):
     verbose_name = 'Lekarz'
     verbose_name_plural = 'Lekarze'
 
-class Patient(models.Model): 
+class Patient(models.Model):
+  @property
+  def get_last_icd(self):
+    last_diag = self.diagnoses.order_by('-diagnosis_date').first()
+    return last_diag.icd_code if last_diag else "-"
+
+  @property
+  def get_last_therapy(self):
+    last_cycle = self.therapy_cycles.order_by('-start_date').first()
+    return last_cycle.protocol_name if last_cycle else "-"
+
+  @property
+  def get_last_appointment(self):
+    from django.utils import timezone
+    return self.appointments.filter(date_time__lt=timezone.now()).order_by('-date_time').first()
+
   class Gender(models.TextChoices):
     MALE = 'Mężczyzna','Mężczyzna'
     FEMALE = 'Kobieta','Kobieta'

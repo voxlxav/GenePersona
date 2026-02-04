@@ -299,7 +299,7 @@ html, body {
 }
 
 .patient-table th {
-    padding: 14px 24px;
+    padding: 10px 20px;
     font-size: 0.75rem;
     text-transform: uppercase;
     color: var(--text-secondary);
@@ -318,6 +318,8 @@ html, body {
 
 .patient-table tr:last-child td {
     border-bottom: none;
+    white-space: normal ;
+    vertical-align: middle;
 }
 
 .patient-table tr:hover td {

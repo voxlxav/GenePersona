@@ -17,6 +17,8 @@ from patient.models import Patient, Doctor, Appointment, TherapyCycle, Diagnosis
 def home(request):
   user = request.user
 
+  prefetch_lookups = ['diagnoses','therapy_cycles','appointments']
+
   if user.is_superuser:
     patients = Patient.objects.filter(is_active=True).order_by('-id')
   else:
@@ -28,6 +30,16 @@ def home(request):
       ).filter(is_active=True).distinct().order_by('-id')
     except Doctor.DoesNotExist:
       patients = Patient.objects.none()
+
+    try:
+      patients = patients.prefetch_related(
+        "diagnoses",
+        "therapy_cycles",
+        'appointments'
+      ).order_by('-id')
+    except Exception as e:
+      print(f"Błąd w prefetch_related (sprawdź nazwy relacji): {e}")
+      patients = patients.order_by('-id')
 
   # Wyszukiwanie
   search_query = request.GET.get('q')
