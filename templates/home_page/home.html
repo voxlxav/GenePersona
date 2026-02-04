@@ -238,7 +238,7 @@
     <div class="modal-content">
 
         <div class="modal-header">
-            <h2>Nowy Pacjent</h2>
+            <h2 class="r-mono">Nowy Pacjent</h2>
             <button class="close-btn" id="closeModal">&times;</button>
         </div>
 
@@ -317,18 +317,64 @@
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ============================================================
+    // 1. OBSŁUGA INTERFEJSU (Modal, Menu boczne, WYBÓR KOLUMN)
+    // ============================================================
+
+    const modal = document.getElementById("patientModal");
+    if(document.getElementById("openModal")) document.getElementById("openModal").onclick = () => modal.style.display = "flex";
+    if(document.getElementById("closeModal")) document.getElementById("closeModal").onclick = () => modal.style.display = "none";
+    if(document.getElementById("cancelModal")) document.getElementById("cancelModal").onclick = () => modal.style.display = "none";
+
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.dashboard-sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if(menuToggle) {
+        const toggle = () => { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); };
+        menuToggle.onclick = toggle; overlay.onclick = toggle;
+    }
+
+    const colBtn = document.getElementById('columnToggleBtn');
+    const colMenu = document.getElementById('columnMenu');
+
+    if(colBtn && colMenu) {
+        colBtn.onclick = (e) => {
+            e.stopPropagation();
+            colMenu.classList.toggle('active');
+        };
+
+        document.addEventListener('click', () => colMenu.classList.remove('active'));
+
+        // Kliknięcie wewnątrz menu nie powinno go zamykać
+        colMenu.onclick = (e) => e.stopPropagation();
+
+        // Obsługa checkboxów - ukrywanie/pokazywanie kolumn
+        colMenu.querySelectorAll('input').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const columnClass = this.dataset.column; // np. 'col-pesel'
+
+                // Znajdź wszystkie elementy z tą klasą (nagłówki i komórki) i zmień ich display
+                document.querySelectorAll('.' + columnClass).forEach(el => {
+                    el.style.display = this.checked ? '' : 'none';
+                });
+            });
+        });
+    }
+
+
     const table = document.querySelector('.patient-table');
+    if (!table) return;
+
     const tbody = table.querySelector('tbody');
     const headers = table.querySelectorAll('th.sortable');
 
-    // Zmienna trzymająca obecny kierunek sortowania (1 = rosnąco, -1 = malejąco)
     let currentDir = 1;
     let currentHeaderIndex = -1;
 
     headers.forEach((header, index) => {
         header.addEventListener('click', () => {
-            // 1. Obsługa kierunku (jeśli kliknięto to samo -> odwróć, jeśli inne -> resetuj do rosnąco)
             if (currentHeaderIndex === index) {
                 currentDir = -currentDir;
             } else {
@@ -336,55 +382,42 @@
                 currentHeaderIndex = index;
             }
 
-            // 2. Aktualizacja ikon
             updateIcons(headers, index, currentDir);
 
-            // 3. Sortowanie
             sortGrid(index, currentDir);
         });
     });
 
     function sortGrid(colIndex, dir) {
-        // Pobieramy wszystkie wiersze
         const rows = Array.from(tbody.querySelectorAll('tr'));
 
-        // Sortujemy
         rows.sort((rowA, rowB) => {
             const valA = getCellValue(rowA, colIndex);
             const valB = getCellValue(rowB, colIndex);
 
-            // Sprawdzamy czy wartości to liczby (dla PESELu, dat w data-order)
             const numA = parseFloat(valA);
             const numB = parseFloat(valB);
 
-            // Jeśli obie wartości są prawidłowymi liczbami -> sortuj matematycznie
             if (!isNaN(numA) && !isNaN(numB)) {
                 return (numA - numB) * dir;
             }
 
-            // W przeciwnym razie -> sortuj tekstowo (z polskimi znakami)
             return String(valA).localeCompare(String(valB), 'pl', { numeric: true }) * dir;
         });
 
-        // Wstawiamy posortowane wiersze z powrotem (to jest szybkie)
         tbody.append(...rows);
     }
 
     function getCellValue(row, index) {
-        // Pobieramy komórkę o danym indeksie
         const cell = row.children[index];
         if (!cell) return "";
 
-        // Jeśli ma data-order, bierzemy to (priorytet dla dat i wizyt)
         if (cell.hasAttribute('data-order')) {
             return cell.getAttribute('data-order');
         }
 
-        // Jeśli to PESEL lub Telefon, czyścimy ze spacji i myślników
-        // (możesz usunąć ten warunek jeśli data-order załatwia sprawę)
         let text = cell.innerText.trim();
 
-        // Prosta heurystyka: jeśli tekst wygląda jak długi numer (PESEL), usuń spacje
         if (/^\d[\d\s-]*$/.test(text) && text.length > 5) {
              return text.replace(/\D/g, '');
         }
@@ -400,17 +433,13 @@
             th.classList.remove('asc', 'desc');
 
             if (idx === activeIndex) {
-                // Ustaw klasę na nagłówku (do kolorowania CSS)
                 th.classList.add(dir === 1 ? 'asc' : 'desc');
-
-                // Zmień ikonę
                 if (icon) {
                     icon.className = dir === 1
                         ? 'fa-solid fa-sort-up'
                         : 'fa-solid fa-sort-down';
                 }
             } else {
-                // Resetuj inne ikony
                 if (icon) icon.className = 'fa-solid fa-sort';
             }
         });
